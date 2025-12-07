@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Flag, Search, Music, LogOut } from 'lucide-react';
+import { Map, MapPin, Flag, Search, Music, LogOut } from 'lucide-react';
 import mapLines from '../assets/map-lines.png';
 
 interface TripPlannerProps {
@@ -36,16 +36,16 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-8 py-6">
         <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-black font-bold">
-                <MapPin className="w-5 h-5 fill-current" />
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white">Road Trip Planner</span>
+                <Map className="w-5 h-5 text-primary" />
+            <span className="text-xl font-bold tracking-tight text-white select-none">Road Trip Planner</span>
         </div>
         
         <div className="flex items-center gap-4">
              <div className="flex items-center gap-2 bg-[#1ed760]/10 border border-[#1ed760]/20 px-4 py-2 rounded-full">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                <span className="text-sm font-medium text-white/90">Powered by Spotify</span>
+               <svg className="w-5 h-5 fill-primary" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.72 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+                            </svg>
+                <span className="text-sm font-medium text-white/90 select-none">Powered by Spotify</span>
             </div>
             
             <button 
@@ -53,7 +53,7 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
                 className="text-white/60 hover:text-white transition-colors"
                 title="Logout"
             >
-                <LogOut className="w-5 h-5" />
+                <LogOut className="w-5 h-5 cursor-pointer" />
             </button>
         </div>
       </header>
@@ -65,16 +65,16 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
         {/* Floating Glass Card */}
         <div className="w-full max-w-[480px] rounded-[32px] bg-[#0A120E]/93 border border-white/5 p-8 shadow-2xl shadow-black/50">
             
-            <h1 className="text-4xl font-bold text-white mb-8 tracking-tight">
+            <h1 className="text-4xl font-bold text-white mb-8 tracking-tight select-none">
                 Where are you going?
             </h1>
 
-            <div className="space-y-6">
+            <div className="space-y-6 select-none">
                 
                 {/* Starting From Input */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/60 ml-1">Starting from</label>
-                    <div className="relative group">
+                <div className="space-y-2 select-none">
+                    <label className="text-sm font-medium text-white/60 ml-1 select-none">Starting from</label>
+                    <div className="relative group select-none">
                         <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors w-5 h-5" />
                         <input 
                             type="text" 
@@ -87,9 +87,9 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
                 </div>
 
                 {/* Destination Input */}
-                <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/60 ml-1">Destination</label>
-                    <div className="relative group">
+                <div className="space-y-2 select-none">
+                    <label className="text-sm font-medium text-white/60 ml-1 select-none">Destination</label>
+                    <div className="relative group select-none">
                         <Flag className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors w-5 h-5" />
                         <input 
                             type="text" 
@@ -104,7 +104,7 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
                 {/* Plan Trip Button */}
                 <button 
                     onClick={handlePlanTrip}
-                    className="w-full mt-4 bg-primary hover:bg-[#1ed760] text-black font-bold text-lg py-4 rounded-full transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                    className="w-full cursor-pointer mt-4 bg-primary hover:bg-[#1ed760] text-black font-bold text-lg py-4 rounded-full transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
                 >
                     <Search className="w-5 h-5 stroke-[2.5]" />
                     <span>Plan My Trip</span>
