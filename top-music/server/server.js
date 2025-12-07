@@ -5,29 +5,59 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import axios from 'axios';
-
-// Load environment variables
-dotenv.config({ path: 'server/.env' });
-
-const app = express();
-const port = process.env.PORT || 5000;
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Load environment variables via absolute path
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+// Debug logging setup
+const logStream = fs.createWriteStream(path.join(__dirname, 'server_debug.log'), { flags: 'a' });
+const log = (msg) => {
+  const message = `[${new Date().toISOString()}] ${msg}\n`;
+  console.log(msg);
+  logStream.write(message);
+};
+
+const app = express();
+const port = process.env.PORT || 5000;
+
+log('Server starting...');
+
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
-// Ensure .env uses http://127.0.0.1:5000/callback
-const redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:5000/callback';
+// Reverted to http://127.0.0.1:5000/callback per user requirement
+const redirect_uri = 'http://127.0.0.1:5000/callback';
 const google_maps_api_key = process.env.GOOGLE_MAPS_API_KEY;
 
 // Middleware
+app.use((req, res, next) => {
+  log(`Request: ${req.method} ${req.url}`);
+  next();
+});
+
 app.use(cors({
     origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // Frontend URLs
     credentials: true // Allow cookies
 }));
 app.use(cookieParser());
 app.use(express.json());
+
+// Debug Config Endpoint
+app.get('/api/debug-config', (req, res) => {
+    res.json({
+        clientIdListeners: process.env.SPOTIFY_CLIENT_ID ? 'Present' : 'Missing',
+        clientIdLength: process.env.SPOTIFY_CLIENT_ID ? process.env.SPOTIFY_CLIENT_ID.length : 0,
+        clientSecretStatus: process.env.SPOTIFY_CLIENT_SECRET ? 'Present' : 'Missing',
+        clientSecretLength: process.env.SPOTIFY_CLIENT_SECRET ? process.env.SPOTIFY_CLIENT_SECRET.length : 0,
+        redirectUri: process.env.SPOTIFY_REDIRECT_URI,
+        cwd: process.cwd(),
+        envPath: path.resolve('server/.env')
+    });
+});
+
 
 const generateRandomString = (length) => {
   let text = '';
