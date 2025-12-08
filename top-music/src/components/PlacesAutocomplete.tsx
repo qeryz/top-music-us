@@ -11,6 +11,7 @@ interface PlacesAutocompleteProps {
   placeholder?: string;
   icon: 'map-pin' | 'flag';
   onLocationSelect: (location: { address: string; lat: number; lng: number }) => void;
+  onClear?: () => void;
   defaultValue?: string;
 }
 
@@ -19,6 +20,7 @@ const PlacesAutocomplete: React.FC<PlacesAutocompleteProps> = ({
   placeholder,
   icon,
   onLocationSelect,
+  onClear,
   defaultValue = '',
 }) => {
   const {
@@ -37,6 +39,7 @@ const PlacesAutocomplete: React.FC<PlacesAutocompleteProps> = ({
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue(e.target.value);
+    if (onClear) onClear();
   };
 
   const handleSelect =
@@ -73,7 +76,7 @@ const PlacesAutocomplete: React.FC<PlacesAutocompleteProps> = ({
           onChange={handleInput}
           disabled={!ready}
           placeholder={placeholder || "Search location..."}
-          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-medium disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/40 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-medium disabled:cursor-not-allowed disabled:opacity-50"
         />
         
         {/* Suggestions Dropdown */}

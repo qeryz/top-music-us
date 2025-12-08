@@ -91,7 +91,8 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
                       label="Starting from" 
                       icon="map-pin"
                       placeholder="Your current location"
-                      onLocationSelect={setOrigin} 
+                      onLocationSelect={setOrigin}
+                      onClear={() => setOrigin(null)}
                     />
 
                     <PlacesAutocomplete 
@@ -99,6 +100,7 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
                       icon="flag" 
                       placeholder="Enter your destination..."
                       onLocationSelect={setDestination}
+                      onClear={() => setDestination(null)}
                     />
                   </>
                 ) : (
@@ -106,6 +108,7 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
                 )}
 
                 {/* Plan Trip Button */}
+                {origin && destination && (
                 <button 
                     onClick={handlePlanTrip}
                     className="w-full cursor-pointer mt-4 bg-primary hover:bg-[#1ed760] text-black font-bold text-lg py-4 rounded-full transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
@@ -113,7 +116,7 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
                     <Search className="w-5 h-5 stroke-[2.5]" />
                     <span>Plan My Trip</span>
                 </button>
-
+                )}
             </div>
         </div>
 
