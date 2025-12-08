@@ -1,16 +1,30 @@
 import React, { useState } from 'react';
-import { Map, MapPin, Flag, Search, Music, LogOut } from 'lucide-react';
+import { Map, Search, Music, LogOut } from 'lucide-react';
 import mapLines from '../assets/map-lines.png';
+import { useJsApiLoader } from '@react-google-maps/api';
+import PlacesAutocomplete from '../components/PlacesAutocomplete';
+
+const LIBRARIES: ("places")[] = ["places"];
 
 interface TripPlannerProps {
   onLogout: () => void;
 }
 
 const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
-  const [origin, setOrigin] = useState('');
-  const [destination, setDestination] = useState('');
+  const [origin, setOrigin] = useState<{ address: string; lat: number; lng: number } | null>(null);
+  const [destination, setDestination] = useState<{ address: string; lat: number; lng: number } | null>(null);
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "",
+    libraries: LIBRARIES,
+  });
 
   const handlePlanTrip = () => {
+    if (!origin || !destination) {
+        alert("Please select both a starting point and a destination!");
+        return;
+    }
     console.log('Planning trip from', origin, 'to', destination);
     // Future: Call Google Maps API / Backend
   };
@@ -71,35 +85,25 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
 
             <div className="space-y-6 select-none">
                 
-                {/* Starting From Input */}
-                <div className="space-y-2 select-none">
-                    <label className="text-sm font-medium text-white/60 ml-1 select-none">Starting from</label>
-                    <div className="relative group select-none">
-                        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors w-5 h-5" />
-                        <input 
-                            type="text" 
-                            placeholder="Your current location"
-                            value={origin}
-                            onChange={(e) => setOrigin(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-medium"
-                        />
-                    </div>
-                </div>
+                {isLoaded ? (
+                  <>
+                    <PlacesAutocomplete 
+                      label="Starting from" 
+                      icon="map-pin"
+                      placeholder="Your current location"
+                      onLocationSelect={setOrigin} 
+                    />
 
-                {/* Destination Input */}
-                <div className="space-y-2 select-none">
-                    <label className="text-sm font-medium text-white/60 ml-1 select-none">Destination</label>
-                    <div className="relative group select-none">
-                        <Flag className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-primary transition-colors w-5 h-5" />
-                        <input 
-                            type="text" 
-                            placeholder="Enter your destination..."
-                            value={destination}
-                            onChange={(e) => setDestination(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all font-medium"
-                        />
-                    </div>
-                </div>
+                    <PlacesAutocomplete 
+                      label="Destination" 
+                      icon="flag" 
+                      placeholder="Enter your destination..."
+                      onLocationSelect={setDestination}
+                    />
+                  </>
+                ) : (
+                  <div className="text-white/50 text-center py-4">Loading Maps...</div>
+                )}
 
                 {/* Plan Trip Button */}
                 <button 
