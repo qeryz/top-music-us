@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Map, Search, Music, LogOut } from 'lucide-react';
+import { Map, Search, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import mapLines from '../assets/map-lines.png';
 import { useJsApiLoader } from '@react-google-maps/api';
@@ -80,7 +80,7 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
       {/* Main Content Area */}
       <main className="relative z-10 flex flex-grow items-center px-12 md:px-24">
         
-        {/* Floating Glass Card */}
+        {/* Floating Glass Card - Trip Planner */}
         <div className="w-full max-w-[480px] rounded-[32px] bg-[#0A120E]/93 border border-white/5 p-8 shadow-2xl shadow-black/50">
             
             <h1 className="text-4xl font-bold text-white mb-8 tracking-tight select-none">

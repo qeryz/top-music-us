@@ -20,7 +20,7 @@ const AppContent = () => {
 
     useEffect(() => {
         const checkAuth = async () => {
-             // 1. Check for login success from URL (redirect from backend)
+            // 1. Check for login success from URL (redirect from backend)
             const params = new URLSearchParams(location.search);
             const loginSuccess = params.get('login') === 'success';
 
