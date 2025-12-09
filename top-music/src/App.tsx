@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import TripPlanner from './pages/TripPlanner';
+import TripPreview from './pages/TripPreview';
 
 // Protected Route Component
 const ProtectedRoute = ({ isAuthenticated, children }: { isAuthenticated: boolean, children: React.ReactNode }) => {
@@ -69,6 +70,14 @@ const AppContent = () => {
                 element={
                     <ProtectedRoute isAuthenticated={isAuthenticated}>
                         <TripPlanner onLogout={handleLogout} />
+                    </ProtectedRoute>
+                } 
+            />
+            <Route 
+                path="/trip-preview" 
+                element={
+                    <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <TripPreview />
                     </ProtectedRoute>
                 } 
             />
