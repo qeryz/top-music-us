@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocat
 import Login from './pages/Login';
 import TripPlanner from './pages/TripPlanner';
 import TripPreview from './pages/TripPreview';
+import NavBar from './components/NavBar';
 
 // Protected Route Component
 const ProtectedRoute = ({ isAuthenticated, children }: { isAuthenticated: boolean, children: React.ReactNode }) => {
@@ -56,32 +57,43 @@ const AppContent = () => {
         navigate('/');
     };
 
+    const handleLogin = () => {
+        window.location.href = 'http://127.0.0.1:5000/login';
+    };
+
     if (loading) {
         return <div className="flex h-screen items-center justify-center bg-black text-white">Loading...</div>;
     }
 
     return (
-        <Routes>
-            <Route path="/" element={
-                isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
-            } />
-            <Route 
-                path="/dashboard" 
-                element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                        <TripPlanner onLogout={handleLogout} />
-                    </ProtectedRoute>
-                } 
+        <>
+            <NavBar 
+                isAuthenticated={isAuthenticated} 
+                onLogin={handleLogin} 
+                onLogout={handleLogout} 
             />
-            <Route 
-                path="/trip-preview" 
-                element={
-                    <ProtectedRoute isAuthenticated={isAuthenticated}>
-                        <TripPreview />
-                    </ProtectedRoute>
-                } 
-            />
-        </Routes>
+            <Routes>
+                <Route path="/" element={
+                    isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />
+                } />
+                <Route 
+                    path="/dashboard" 
+                    element={
+                        <ProtectedRoute isAuthenticated={isAuthenticated}>
+                            <TripPlanner />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/trip-preview" 
+                    element={
+                        <ProtectedRoute isAuthenticated={isAuthenticated}>
+                            <TripPreview />
+                        </ProtectedRoute>
+                    } 
+                />
+            </Routes>
+        </>
     );
 };
 
