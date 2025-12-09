@@ -69,7 +69,7 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
           directions={directions}
           options={{
             polylineOptions: {
-              strokeColor: "#4986e8ff",
+              strokeColor: "#35a4ffff",
               strokeWeight: 6,
               strokeOpacity: 0.7,
             },
