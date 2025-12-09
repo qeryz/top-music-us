@@ -1,5 +1,4 @@
-import React from 'react';
-import { Briefcase } from 'lucide-react';
+
 
 const Login = () => {
   const handleLogin = () => {
@@ -10,13 +9,7 @@ const Login = () => {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background-dark text-white font-display overflow-hidden">
       
-      {/* Header */}
-      <header className="px-8 py-6 z-10 w-full">
-        <div className="flex items-center gap-2">
-            <Briefcase className="text-primary w-8 h-8" strokeWidth={2.5} />
-            <span className="select-none text-xl font-bold tracking-tight text-white">RoadTrip Jams</span>
-        </div>
-      </header>
+
 
       {/* Main Content */}
       <main className="flex-grow flex items-center justify-center px-8 pb-20">
