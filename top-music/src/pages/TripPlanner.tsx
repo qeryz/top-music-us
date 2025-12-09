@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Map, Search, Music, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import mapLines from '../assets/map-lines.png';
 import { useJsApiLoader } from '@react-google-maps/api';
 import PlacesAutocomplete from '../components/PlacesAutocomplete';
@@ -11,6 +12,7 @@ interface TripPlannerProps {
 }
 
 const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
+  const navigate = useNavigate();
   const [origin, setOrigin] = useState<{ address: string; lat: number; lng: number } | null>(null);
   const [destination, setDestination] = useState<{ address: string; lat: number; lng: number } | null>(null);
 
@@ -25,8 +27,10 @@ const TripPlanner: React.FC<TripPlannerProps> = ({ onLogout }) => {
         alert("Please select both a starting point and a destination!");
         return;
     }
-    console.log('Planning trip from', origin, 'to', destination);
-    // Future: Call Google Maps API / Backend
+    // Navigate to preview page with state
+    navigate('/trip-preview', { 
+        state: { origin, destination } 
+    });
   };
 
   return (
