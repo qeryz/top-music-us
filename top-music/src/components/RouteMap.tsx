@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
 
 interface RouteMapProps {
@@ -19,8 +18,9 @@ const mapOptions = {
   streetViewControl: false,
   mapTypeControl: false,
   fullscreenControl: false,
-  gestureHandling: 'greedy', // Allows scroll to zoom without Ctrl
+  gestureHandling: 'greedy',
   mapId: "2d38b57f5cf31bb91d4dacb2",
+  colorScheme: "DARK"
 };
 
 const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated }) => {
@@ -60,7 +60,7 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
   return (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      center={origin} // Initial center, directions will auto-fit
+      center={origin}
       zoom={10}
       options={mapOptions}
     >
@@ -69,12 +69,12 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
           directions={directions}
           options={{
             polylineOptions: {
-              strokeColor: "#4285F4", // Google Blue, maybe customize later
+              strokeColor: "#4986e8ff",
               strokeWeight: 6,
-              strokeOpacity: 0.8,
+              strokeOpacity: 0.7,
             },
             markerOptions: {
-                // We can custom markers here later if needed
+              icon: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"
             }
           }}
         />
