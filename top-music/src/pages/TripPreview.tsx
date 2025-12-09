@@ -95,13 +95,13 @@ const TripPreview: React.FC = () => {
           <div className="flex items-center gap-8 border-b border-white/10 pb-4">
             <button 
                 onClick={() => setActiveTab('my-playlists')}
-                className={`text-xl font-bold transition-colors ${activeTab === 'my-playlists' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+                className={`text-xl font-bold transition-colors ${activeTab === 'my-playlists' ? 'text-white border-b-2 border-white' : 'text-white/40 hover:text-white/70'}`}
             >
                 My Playlists
             </button>
             <button 
                 onClick={() => setActiveTab('create-new')}
-                className={`text-xl font-bold transition-colors ${activeTab === 'create-new' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+                className={`text-xl font-bold transition-colors ${activeTab === 'create-new' ? 'text-white border-b-2 border-white' : 'text-white/40 hover:text-white/70'}`}
             >
                 Create New
             </button>
