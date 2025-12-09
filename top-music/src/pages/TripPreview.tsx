@@ -5,6 +5,8 @@ import { useJsApiLoader } from '@react-google-maps/api';
 import { ArrowLeft, Clock, MapPin, Pencil } from 'lucide-react'; // Using Lucide icons for now
 import RouteMap from '../components/RouteMap';
 
+import MyPlaylists from '../components/MyPlaylists';
+
 const LIBRARIES: ("places")[] = ["places"];
 
 const TripPreview: React.FC = () => {
@@ -16,6 +18,7 @@ const TripPreview: React.FC = () => {
   const destination = state?.destination;
 
   const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
+  const [activeTab, setActiveTab] = useState<'my-playlists' | 'create-new'>('my-playlists');
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -94,21 +97,35 @@ const TripPreview: React.FC = () => {
       </div>
 
       {/* --- BOTTOM HALF: CONTENT --- */}
-      <div className="flex-1 px-8 py-12 max-w-7xl mx-auto w-full">
-          <h2 className="text-3xl font-bold text-white mb-8">Choose Your Soundtrack</h2>
+      <div className="flex-1 px-8 py-12 max-w-7xl mx-auto w-full flex flex-col gap-8">
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Placeholders for Playlists */}
-              <div className="aspect-square rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-white/20">
-                  Playlist 1
-              </div>
-              <div className="aspect-square rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-white/20">
-                  Playlist 2
-              </div>
-               <div className="aspect-square rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-white/20">
-                  Playlist 3
-              </div>
+          {/* Tabs */}
+          <div className="flex items-center gap-8 border-b border-white/10 pb-4">
+            <button 
+                onClick={() => setActiveTab('my-playlists')}
+                className={`text-xl font-bold transition-colors ${activeTab === 'my-playlists' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+            >
+                My Playlists
+            </button>
+            <button 
+                onClick={() => setActiveTab('create-new')}
+                className={`text-xl font-bold transition-colors ${activeTab === 'create-new' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+            >
+                Create New
+            </button>
           </div>
+
+          {/* Tab Content */}
+          <div className="min-h-[300px]">
+             {activeTab === 'my-playlists' ? (
+                <MyPlaylists />
+             ) : (
+                <div className="flex items-center justify-center h-64 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
+                    <p className="text-white/40 font-medium">Create New Playlist UI Coming Soon</p>
+                </div>
+             )}
+          </div>
+
       </div>
 
     </div>
