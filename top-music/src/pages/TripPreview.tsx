@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useJsApiLoader } from '@react-google-maps/api';
-import { ArrowLeft, Clock, MapPin, Pencil } from 'lucide-react'; // Using Lucide icons for now
+import { Clock, MapPin, Pencil } from 'lucide-react'; // Using Lucide icons for now
 import RouteMap from '../components/RouteMap';
 
 import MyPlaylists from '../components/MyPlaylists';
@@ -46,17 +46,9 @@ const TripPreview: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-[#05110a] font-display">
       
       {/* --- TOP HALF: MAP AREA --- */}
-      <div className="relative w-[80vw] h-[70vh] mx-auto my-8 rounded-[40px] overflow-hidden shadow-2xl z-10">
+      <div className="relative w-[80vw] h-[70vh] mx-auto mt-24 mb-8 rounded-[40px] overflow-hidden shadow-2xl z-10">
             
-            {/* Header / Nav */}
-            <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-8 py-6 pointer-events-none">
-                <div 
-                    onClick={() => navigate('/dashboard')}
-                    className="pointer-events-auto cursor-pointer bg-black/40 backdrop-blur-md p-3 rounded-full hover:bg-black/60 transition-colors text-white"
-                >
-                    <ArrowLeft className="w-6 h-6" />
-                </div>
-            </div>
+
 
             {/* Google Map */}
             {isLoaded ? (
