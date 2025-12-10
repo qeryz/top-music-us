@@ -230,6 +230,25 @@ app.get('/api/user-playlists', async (req, res) => {
     }
 });
 
+app.get('/api/playlist/:id', async (req, res) => {
+    const access_token = req.cookies.access_token;
+    const { id } = req.params;
+
+    if (!access_token) {
+        return res.status(401).send('No access token found');
+    }
+
+    try {
+        const response = await axios.get(`https://api.spotify.com/v1/playlists/${id}`, {
+            headers: { 'Authorization': 'Bearer ' + access_token }
+        });
+        res.json(response.data);
+    } catch (error) {
+        console.error(`Error fetching playlist ${id}:`, error.response ? error.response.data : error.message);
+        res.status(error.response ? error.response.status : 500).send(error.message);
+    }
+});
+
 // Generate Playlist Logic
 app.post('/api/generate-playlist', async (req, res) => {
     const { duration_seconds, existing_playlist_id, seeds } = req.body;

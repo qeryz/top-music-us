@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Music } from 'lucide-react';
 import { type SpotifyPlaylist } from '../services/spotify';
 
 interface PlaylistGridProps {
     playlists: SpotifyPlaylist[];
+    onSelect: (id: string) => void;
 }
 
-const PlaylistGrid: React.FC<PlaylistGridProps> = ({ playlists }) => {
+const PlaylistGrid: React.FC<PlaylistGridProps> = ({ playlists, onSelect }) => {
     if (playlists.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-12 text-white/50">
@@ -24,6 +25,7 @@ const PlaylistGrid: React.FC<PlaylistGridProps> = ({ playlists }) => {
                     <div 
                         key={playlist.id} 
                         className="group relative flex flex-col gap-3 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 cursor-pointer border border-transparent hover:border-white/10"
+                        onClick={() => onSelect(playlist.id)}
                     >
                         {/* Playlist Image */}
                         <div className="aspect-square w-full rounded-lg overflow-hidden bg-[#282828] shadow-lg relative">

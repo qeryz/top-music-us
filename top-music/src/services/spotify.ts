@@ -72,3 +72,56 @@ export const getUserPlaylists = async (): Promise<SpotifyPlaylist[]> => {
     const data: PlaylistResponse = await response.json();
     return data.items;
 };
+
+export interface SpotifyArtist {
+    id: string;
+    name: string;
+}
+
+export interface SpotifyAlbum {
+    id: string;
+    name: string;
+    images: SpotifyImage[];
+}
+
+export interface SpotifyTrack {
+    id: string;
+    name: string;
+    artists: SpotifyArtist[];
+    album: SpotifyAlbum;
+    duration_ms: number;
+    preview_url: string | null;
+}
+
+export interface SpotifyPlaylistTrack {
+    added_at: string;
+    track: SpotifyTrack;
+}
+
+export interface SpotifyPlaylistDetail extends SpotifyPlaylist {
+    description: string;
+    owner: {
+        display_name: string;
+    };
+    tracks: {
+        href: string;
+        total: number;
+        items: SpotifyPlaylistTrack[];
+    };
+}
+
+/**
+ * Fetches full details for a specific playlist.
+ */
+export const getPlaylist = async (id: string): Promise<SpotifyPlaylistDetail> => {
+    const response = await fetchWithAuth(`/api/playlist/${id}`);
+
+    if (!response.ok) {
+         if (response.status === 401) {
+             throw new Error('Session expired. Please login again.');
+         }
+        throw new Error(`Failed to fetch playlist details: ${response.statusText}`);
+    }
+
+    return await response.json();
+};

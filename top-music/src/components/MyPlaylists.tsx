@@ -3,11 +3,13 @@ import { getUserPlaylists, type SpotifyPlaylist } from '../services/spotify';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 import PlaylistGrid from './PlaylistGrid';
+import PlaylistDetail from './PlaylistDetail';
 
 const MyPlaylists: React.FC = () => {
     const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
 
     const fetchPlaylists = async () => {
         setLoading(true);
@@ -27,6 +29,15 @@ const MyPlaylists: React.FC = () => {
         fetchPlaylists();
     }, []);
 
+    if (selectedPlaylistId) {
+        return (
+            <PlaylistDetail 
+                playlistId={selectedPlaylistId} 
+                onBack={() => setSelectedPlaylistId(null)} 
+            />
+        );
+    }
+
     if (loading) {
         return <PlaylistLoading />;
     }
@@ -40,7 +51,7 @@ const MyPlaylists: React.FC = () => {
         );
     }
 
-    return <PlaylistGrid playlists={playlists} />;
+    return <PlaylistGrid playlists={playlists} onSelect={setSelectedPlaylistId} />;
 };
 
 export default MyPlaylists;
