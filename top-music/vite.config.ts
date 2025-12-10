@@ -11,7 +11,8 @@ export default defineConfig({
   server: {
     proxy: {
         '/api': 'http://127.0.0.1:5000',
-        '/login': 'http://127.0.0.1:5000', // Also proxy login initiation if needed, but usually login is direct nav.
+        '/login': 'http://127.0.0.1:5000',
+        '/refresh_token': 'http://127.0.0.1:5000',
     }
   }
 })

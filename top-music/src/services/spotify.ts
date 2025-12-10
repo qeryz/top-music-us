@@ -29,12 +29,38 @@ export interface PlaylistResponse {
 }
 
 /**
+ * Helper to perform fetch with automatic token refresh on 401.
+ */
+const fetchWithAuth = async (url: string, options: RequestInit = {}): Promise<Response> => {
+    let response = await fetch(url, options);
+
+    if (response.status === 401) {
+        // Token might be expired, try refreshing
+        try {
+            const refreshResponse = await fetch('/refresh_token');
+            if (refreshResponse.ok) {
+                // Retry the original request
+                response = await fetch(url, options);
+            } else {
+                // Refresh failed, nothing else we can do
+                console.error('Token refresh failed');
+            }
+        } catch (error) {
+            console.error('Error during token refresh:', error);
+        }
+    }
+
+    return response;
+};
+
+/**
  * Fetches the current user's playlists via the backend proxy.
  * Authentication is handled via HttpOnly cookies.
+ * Automatically attempts to refresh token if expired.
  */
 export const getUserPlaylists = async (): Promise<SpotifyPlaylist[]> => {
     // We request our own backend, which forwards the request to Spotify with the cookie token
-    const response = await fetch('/api/user-playlists');
+    const response = await fetchWithAuth('/api/user-playlists');
 
     if (!response.ok) {
          if (response.status === 401) {
