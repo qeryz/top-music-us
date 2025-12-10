@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getUserPlaylists, type SpotifyPlaylist } from '../services/spotify';
+import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 import PlaylistGrid from './PlaylistGrid';
@@ -10,6 +11,9 @@ const MyPlaylists: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
+    
+    // Initialize Spotify Player once at this level
+    const { deviceId, player, error: sdkError } = useSpotifyPlayer();
 
     const fetchPlaylists = async () => {
         setLoading(true);
@@ -33,7 +37,10 @@ const MyPlaylists: React.FC = () => {
         return (
             <PlaylistDetail 
                 playlistId={selectedPlaylistId} 
-                onBack={() => setSelectedPlaylistId(null)} 
+                onBack={() => setSelectedPlaylistId(null)}
+                deviceId={deviceId}
+                player={player}
+                sdkError={sdkError}
             />
         );
     }
