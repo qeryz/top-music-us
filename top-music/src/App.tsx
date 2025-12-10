@@ -1,12 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import TripPlanner from './pages/TripPlanner';
 import TripPreview from './pages/TripPreview';
 import NavBar from './components/NavBar';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Protected Route Component
-const ProtectedRoute = ({ isAuthenticated, children }: { isAuthenticated: boolean, children: React.ReactNode }) => {
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    const { isAuthenticated, isLoading } = useAuth();
+    
+    if (isLoading) {
+        return <div className="flex h-screen items-center justify-center bg-black text-white">Loading...</div>;
+    }
+
     if (!isAuthenticated) {
         return <Navigate to="/" replace />;
     }
@@ -14,54 +21,9 @@ const ProtectedRoute = ({ isAuthenticated, children }: { isAuthenticated: boolea
 };
 
 const AppContent = () => {
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
-    const location = useLocation();
-    const navigate = useNavigate();
+    const { isAuthenticated, isLoading, login, logout } = useAuth();
 
-    useEffect(() => {
-        const checkAuth = async () => {
-            // 1. Check for login success from URL (redirect from backend)
-            const params = new URLSearchParams(location.search);
-            const loginSuccess = params.get('login') === 'success';
-
-            if (loginSuccess) {
-                localStorage.setItem('is_authenticated', 'true');
-                setIsAuthenticated(true);
-                // Clear the query param
-                window.history.replaceState({}, document.title, window.location.pathname);
-                setLoading(false);
-                return;
-            }
-
-            // 2. Check localStorage (since httpOnly cookies are invisible to JS)
-            const storedAuth = localStorage.getItem('is_authenticated') === 'true';
-            if (storedAuth) {
-                setIsAuthenticated(true);
-            } else {
-                 // Fallback: check visible cookies just in case
-                const hasCookie = document.cookie.split(';').some((item) => item.trim().startsWith('access_token='));
-                setIsAuthenticated(hasCookie);
-                if (hasCookie) localStorage.setItem('is_authenticated', 'true');
-            }
-
-            setLoading(false);
-        };
-
-        checkAuth();
-    }, [location]);
-
-    const handleLogout = () => {
-        localStorage.removeItem('is_authenticated');
-        setIsAuthenticated(false);
-        navigate('/');
-    };
-
-    const handleLogin = () => {
-        window.location.href = 'http://127.0.0.1:5000/login';
-    };
-
-    if (loading) {
+    if (isLoading) {
         return <div className="flex h-screen items-center justify-center bg-black text-white">Loading...</div>;
     }
 
@@ -69,8 +31,8 @@ const AppContent = () => {
         <>
             <NavBar 
                 isAuthenticated={isAuthenticated} 
-                onLogin={handleLogin} 
-                onLogout={handleLogout} 
+                onLogin={login} 
+                onLogout={logout} 
             />
             <Routes>
                 <Route path="/" element={
@@ -79,7 +41,7 @@ const AppContent = () => {
                 <Route 
                     path="/dashboard" 
                     element={
-                        <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <ProtectedRoute>
                             <TripPlanner />
                         </ProtectedRoute>
                     } 
@@ -87,7 +49,7 @@ const AppContent = () => {
                 <Route 
                     path="/trip-preview" 
                     element={
-                        <ProtectedRoute isAuthenticated={isAuthenticated}>
+                        <ProtectedRoute>
                             <TripPreview />
                         </ProtectedRoute>
                     } 
@@ -100,7 +62,9 @@ const AppContent = () => {
 function App() {
   return (
     <Router>
-       <AppContent />
+       <AuthProvider>
+          <AppContent />
+       </AuthProvider>
     </Router>
   );
 }
