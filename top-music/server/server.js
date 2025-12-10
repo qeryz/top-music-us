@@ -73,7 +73,7 @@ const generateRandomString = (length) => {
 app.get('/login', (req, res) => {
   const state = generateRandomString(16);
   // Requested scopes: reading private playlists, creating playlists, reading top tracks
-  const scope = 'user-read-private user-read-email playlist-read-private playlist-modify-public playlist-modify-private user-top-read';
+  const scope = 'user-read-private user-read-email playlist-read-private playlist-modify-public playlist-modify-private user-top-read streaming user-read-playback-state user-modify-playback-state';
 
   res.redirect('https://accounts.spotify.com/authorize?' +
     new URLSearchParams({
@@ -144,6 +144,54 @@ app.get('/callback', async (req, res) => {
           }).toString());
     }
   }
+});
+
+app.get('/api/token', (req, res) => {
+    const access_token = req.cookies.access_token;
+    if (!access_token) {
+        return res.status(401).json({ error: 'No access token' });
+    }
+    res.json({ access_token });
+});
+
+app.put('/api/play', async (req, res) => {
+    const access_token = req.cookies.access_token;
+    const { device_id, uris } = req.body;
+
+    if (!access_token) {
+        return res.status(401).json({ error: 'No access token' });
+    }
+
+    try {
+        await axios.put(`https://api.spotify.com/v1/me/player/play?device_id=${device_id}`, 
+            { uris },
+            { headers: { 'Authorization': 'Bearer ' + access_token } }
+        );
+        res.status(204).send();
+    } catch (error) {
+        console.error('Error playing track:', error.response ? error.response.data : error.message);
+        res.status(error.response ? error.response.status : 500).json(error.response ? error.response.data : { error: error.message });
+    }
+});
+
+app.put('/api/transfer-playback', async (req, res) => {
+    const access_token = req.cookies.access_token;
+    const { device_ids, play } = req.body;
+
+    if (!access_token) {
+        return res.status(401).json({ error: 'No access token' });
+    }
+
+    try {
+        await axios.put('https://api.spotify.com/v1/me/player', 
+            { device_ids, play },
+            { headers: { 'Authorization': 'Bearer ' + access_token } }
+        );
+        res.status(204).send();
+    } catch (error) {
+        console.error('Error transferring playback:', error.response ? error.response.data : error.message);
+        res.status(error.response ? error.response.status : 500).json(error.response ? error.response.data : { error: error.message });
+    }
 });
 
 app.get('/refresh_token', async (req, res) => {
