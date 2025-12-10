@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Clock, Play, Pause, Music } from 'lucide-react';
-import { getPlaylist, type SpotifyPlaylistDetail, type SpotifyTrack } from '../services/spotify';
+import { ArrowLeft, Clock, Play, Pause, Music, Loader } from 'lucide-react';
+import { getPlaylist, playTrack, type SpotifyPlaylistDetail, type SpotifyTrack } from '../services/spotify';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 
 interface PlaylistDetailProps {
     playlistId: string;
     onBack: () => void;
+    deviceId: string | null;
+    player: any;
+    sdkError: string | null;
 }
 
-const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack }) => {
+const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack, deviceId, player, sdkError }) => {
     const [playlist, setPlaylist] = useState<SpotifyPlaylistDetail | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
-    const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -31,35 +33,58 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack }) =
         };
 
         fetchDetails();
-
-        // Cleanup audio on unmount
-        return () => {
-            if (audio) {
-                audio.pause();
-                setAudio(null);
-            }
-        };
     }, [playlistId]);
 
-    const handlePlayPreview = (track: SpotifyTrack) => {
+    // Listen to player state changes to track what's actually playing
+    useEffect(() => {
+        if (!player) return;
+
+        const stateListener = (state: any) => {
+            if (!state) {
+                setPlayingTrackId(null);
+                return;
+            }
+
+            // state.track_window.current_track contains info about the currently playing track
+            if (state.paused) {
+                setPlayingTrackId(null);
+            } else if (state.track_window?.current_track) {
+                // Extract the track ID from the URI (format: spotify:track:ID)
+                const trackUri = state.track_window.current_track.uri;
+                const trackId = trackUri.split(':')[2];
+                setPlayingTrackId(trackId);
+            }
+        };
+
+        player.addListener('player_state_changed', stateListener);
+
+        return () => {
+            player.removeListener('player_state_changed', stateListener);
+        };
+    }, [player]);
+
+    const handlePlay = async (track: SpotifyTrack) => {
+
+        if (sdkError) {
+            alert(`Spotify Player Error: ${sdkError}`);
+            return;
+        }
+
+        if (!deviceId) {
+            console.error('[PlaylistDetail] No device ID available');
+            alert("Spotify Web Player is still loading. Please wait or check console for errors...");
+            return;
+        }
+
         if (playingTrackId === track.id) {
-            // Pause
-            audio?.pause();
-            setPlayingTrackId(null);
-            setAudio(null);
+            player?.pause();
+            // Note: playingTrackId will be updated by the state listener
         } else {
-            // Stop current
-            if (audio) audio.pause();
-            
-            if (track.preview_url) {
-                const newAudio = new Audio(track.preview_url);
-                newAudio.volume = 0.5;
-                newAudio.play().catch(e => console.error("Audio play failed", e));
-                newAudio.onended = () => setPlayingTrackId(null);
-                setAudio(newAudio);
-                setPlayingTrackId(track.id);
-            } else {
-                alert("No preview available for this song");
+            try {
+                await playTrack(deviceId, track.uri);
+                // Note: playingTrackId will be updated by the state listener when playback actually starts
+            } catch (e) {
+                alert("Failed to start playback. Do you have Spotify Premium?");
             }
         }
     };
@@ -71,7 +96,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack }) =
     };
 
     if (loading) return <PlaylistLoading />;
-    if (error) return <PlaylistError message={error} onRetry={() => window.location.reload()} />; // Or simplified retry
+    if (error) return <PlaylistError message={error} onRetry={() => window.location.reload()} />;
     if (!playlist) return null;
 
     const imageUrl = playlist.images?.[0]?.url;
@@ -110,19 +135,23 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack }) =
                         <span>{playlist.owner.display_name}</span>
                         <span>•</span>
                         <span>{playlist.tracks.total} songs</span>
+                        {!deviceId && <Loader className="w-3 h-3 animate-spin text-orange-400" />}
                     </div>
                 </div>
             </div>
 
             {/* Actions Bar */}
             <div className="px-6 py-4 flex items-center gap-4">
-                <button className="w-14 h-14 rounded-full bg-[#1DB954] hover:scale-105 active:scale-95 flex items-center justify-center text-black transition-all shadow-lg cursor-pointer">
-                    <Play className="w-7 h-7 fill-black translate-x-0.5" />
+                <button 
+                    onClick={() => playlist.tracks.items[0]?.track && handlePlay(playlist.tracks.items[0].track)}
+                    className="w-14 h-14 rounded-full bg-[#1DB954] hover:scale-105 active:scale-95 flex items-center justify-center text-black transition-all shadow-lg cursor-pointer"
+                >
+                    {playingTrackId ? <Pause className="w-7 h-7 fill-black" /> : <Play className="w-7 h-7 fill-black translate-x-0.5" />}
                 </button>
             </div>
 
             {/* Tracks List */}
-            <div className="px-6 pb-8">
+            <div className="px-6 pb-20">
                  <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-2 border-b border-white/10 text-white/50 text-sm uppercase tracking-wider mb-2">
                     <span className="w-8 text-center">#</span>
                     <span>Title</span>
@@ -131,20 +160,24 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack }) =
 
                  <div className="flex flex-col">
                     {playlist.tracks.items.map((item, index) => {
-                        if (!item.track) return null; // Handle null tracks
+                        if (!item.track) return null;
                         const isCurrentPlaying = playingTrackId === item.track.id;
                         
                         return (
                             <div 
                                 key={`${item.track.id}-${index}`}
                                 className="group grid grid-cols-[auto_1fr_auto] gap-4 items-center px-4 py-3 rounded-md hover:bg-white/10 transition-colors cursor-pointer"
-                                onClick={() => handlePlayPreview(item.track)}
+                                onClick={() => handlePlay(item.track)}
                             >
                                 <div className="w-8 flex justify-center text-white/60 font-medium group-hover:hidden">
                                     {index + 1}
                                 </div>
                                 <div className="w-8 justify-center hidden group-hover:flex text-white">
-                                    {isCurrentPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white" />}
+                                    {isCurrentPlaying ? (
+                                        <Pause className="w-4 h-4" />
+                                    ) : (
+                                        <Play className="w-4 h-4 fill-white" />
+                                    )}
                                 </div>
 
                                 <div className="flex items-center gap-3 overflow-hidden">

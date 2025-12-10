@@ -73,6 +73,8 @@ export const getUserPlaylists = async (): Promise<SpotifyPlaylist[]> => {
     return data.items;
 };
 
+
+
 export interface SpotifyArtist {
     id: string;
     name: string;
@@ -91,6 +93,7 @@ export interface SpotifyTrack {
     album: SpotifyAlbum;
     duration_ms: number;
     preview_url: string | null;
+    uri: string;
 }
 
 export interface SpotifyPlaylistTrack {
@@ -124,4 +127,82 @@ export const getPlaylist = async (id: string): Promise<SpotifyPlaylistDetail> =>
     }
 
     return await response.json();
+};
+
+/**
+ * Fetches the access token from the backend for use in the SDK.
+ */
+export const getAccessToken = async (): Promise<string | null> => {
+    try {
+        const response = await fetch('/api/token');
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data.access_token;
+    } catch (e) {
+        console.error("Failed to fetch access token", e);
+        return null;
+    }
+};
+
+/**
+ * Transfers playback to the specified device.
+ */
+export const transferPlayback = async (deviceId: string): Promise<void> => {
+    const response = await fetchWithAuth('/api/transfer-playback', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            device_ids: [deviceId],
+            play: false
+        })
+    });
+
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to transfer playback');
+    }
+};
+
+/**
+ * Plays a track on the specified device.
+ */
+export const playTrack = async (deviceId: string, trackUri: string): Promise<void> => {
+    const response = await fetchWithAuth('/api/play', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            device_id: deviceId,
+            uris: [trackUri] 
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        
+        // If device not found, try transferring playback first
+        if (response.status === 404 || errorData.error?.reason === 'NO_ACTIVE_DEVICE') {
+            console.log('[playTrack] Device not found, transferring playback...');
+            await transferPlayback(deviceId);
+            
+            // Wait a bit for the transfer to complete
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Retry the play request
+            const retryResponse = await fetchWithAuth('/api/play', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    device_id: deviceId,
+                    uris: [trackUri] 
+                })
+            });
+            
+            if (!retryResponse.ok) {
+                const retryError = await retryResponse.json();
+                throw new Error(retryError.error || 'Failed to play track after transfer');
+            }
+        } else {
+            throw new Error(errorData.error || 'Failed to play track');
+        }
+    }
 };
