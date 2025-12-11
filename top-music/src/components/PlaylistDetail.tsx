@@ -17,6 +17,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack, dev
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
+    const [isPaused, setIsPaused] = useState<boolean>(true);
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -47,12 +48,13 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack, dev
 
             // state.track_window.current_track contains info about the currently playing track
             if (state.paused) {
-                setPlayingTrackId(null);
+                setIsPaused(true);
             } else if (state.track_window?.current_track) {
                 // Extract the track ID from the URI (format: spotify:track:ID)
                 const trackUri = state.track_window.current_track.uri;
                 const trackId = trackUri.split(':')[2];
                 setPlayingTrackId(trackId);
+                setIsPaused(false);
             }
         };
 
@@ -77,7 +79,11 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack, dev
         }
 
         if (playingTrackId === track.id) {
-            player?.pause();
+            if (isPaused) {
+                player?.resume();
+            } else {
+                player?.pause();
+            }
             // Note: playingTrackId will be updated by the state listener
         } else {
             try {
@@ -143,10 +149,19 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack, dev
             {/* Actions Bar */}
             <div className="px-6 py-4 flex items-center gap-4">
                 <button 
-                    onClick={() => playlist.tracks.items[0]?.track && handlePlay(playlist.tracks.items[0].track)}
+                    onClick={() => {
+                        if (isPaused) {
+                            player?.resume();
+                        } else {
+                            player?.pause();
+                        }
+                        if (!playingTrackId && playlist.tracks.items[0]?.track) {
+                            handlePlay(playlist.tracks.items[0].track);
+                        }
+                    }}
                     className="w-14 h-14 rounded-full bg-[#1DB954] hover:scale-105 active:scale-95 flex items-center justify-center text-black transition-all shadow-lg cursor-pointer"
                 >
-                    {playingTrackId ? <Pause className="w-7 h-7 fill-black" /> : <Play className="w-7 h-7 fill-black translate-x-0.5" />}
+                    {!isPaused ? <Pause className="w-7 h-7 fill-black" /> : <Play className="w-7 h-7 fill-black translate-x-0.5" />}
                 </button>
             </div>
 
@@ -173,7 +188,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ playlistId, onBack, dev
                                     {index + 1}
                                 </div>
                                 <div className="w-8 justify-center hidden group-hover:flex text-white">
-                                    {isCurrentPlaying ? (
+                                    {!isPaused && isCurrentPlaying ? (
                                         <Pause className="w-4 h-4" />
                                     ) : (
                                         <Play className="w-4 h-4 fill-white" />
