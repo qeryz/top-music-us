@@ -1,13 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useJsApiLoader } from '@react-google-maps/api';
 import { Clock, MapPin, Pencil } from 'lucide-react'; // Using Lucide icons for now
 import RouteMap from '../components/RouteMap';
+import type { SpotifyPlaylistDetail } from '../services/spotify';
 
 import MyPlaylists from '../components/MyPlaylists';
 
-const LIBRARIES: ("places")[] = ["places"];
+const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
 
 const TripPreview: React.FC = () => {
   const { state } = useLocation();
@@ -19,6 +20,12 @@ const TripPreview: React.FC = () => {
 
   const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
   const [activeTab, setActiveTab] = useState<'my-playlists' | 'create-new'>('my-playlists');
+  const [selectedPlaylist, setSelectedPlaylist] = useState<SpotifyPlaylistDetail | null>(null);
+
+  // Memoize tracks array to prevent unnecessary re-renders
+  const tracks = useMemo(() => {
+    return selectedPlaylist?.tracks.items.map(item => item.track).filter(Boolean) || undefined;
+  }, [selectedPlaylist]);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -56,6 +63,7 @@ const TripPreview: React.FC = () => {
                     origin={origin} 
                     destination={destination}
                     onRouteStatsCalculated={setRouteStats}
+                    tracks={tracks as any}
                 />
             ) : (
                 <div className="w-full h-full bg-[#1A1A1A] flex items-center justify-center text-white/30">
@@ -110,7 +118,7 @@ const TripPreview: React.FC = () => {
           {/* Tab Content */}
           <div className="min-h-[300px]">
              {activeTab === 'my-playlists' ? (
-                <MyPlaylists />
+                <MyPlaylists onPlaylistSelect={setSelectedPlaylist} />
              ) : (
                 <div className="flex items-center justify-center h-64 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
                     <p className="text-white/40 font-medium">Create New Playlist UI Coming Soon</p>

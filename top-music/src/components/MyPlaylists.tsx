@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { getUserPlaylists, type SpotifyPlaylist } from '../services/spotify';
+import { getUserPlaylists, type SpotifyPlaylist, type SpotifyPlaylistDetail } from '../services/spotify';
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 import PlaylistGrid from './PlaylistGrid';
 import PlaylistDetail from './PlaylistDetail';
 
-const MyPlaylists: React.FC = () => {
+interface MyPlaylistsProps {
+    onPlaylistSelect?: (playlist: SpotifyPlaylistDetail | null) => void;
+}
+
+const MyPlaylists: React.FC<MyPlaylistsProps> = ({ onPlaylistSelect }) => {
     const [playlists, setPlaylists] = useState<SpotifyPlaylist[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -37,10 +41,14 @@ const MyPlaylists: React.FC = () => {
         return (
             <PlaylistDetail 
                 playlistId={selectedPlaylistId} 
-                onBack={() => setSelectedPlaylistId(null)}
+                onBack={() => {
+                    setSelectedPlaylistId(null);
+                    onPlaylistSelect?.(null);
+                }}
                 deviceId={deviceId}
                 player={player}
                 sdkError={sdkError}
+                onPlaylistLoaded={onPlaylistSelect}
             />
         );
     }

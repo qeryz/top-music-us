@@ -5,7 +5,7 @@ import mapLines from '../assets/map-lines.png';
 import { useJsApiLoader } from '@react-google-maps/api';
 import PlacesAutocomplete from '../components/PlacesAutocomplete';
 
-const LIBRARIES: ("places")[] = ["places"];
+const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
 
 const TripPlanner: React.FC = () => {
   const navigate = useNavigate();

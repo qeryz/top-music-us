@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Play, Pause } from 'lucide-react';
-import type { SpotifyTrack } from '../services/spotify';
+import type { SpotifyTrack, SpotifyPlaylistDetail } from '../services/spotify';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 import PlaylistHeader from './PlaylistHeader';
@@ -15,6 +15,7 @@ interface PlaylistDetailProps {
     deviceId: string | null;
     player: any;
     sdkError: string | null;
+    onPlaylistLoaded?: (playlist: SpotifyPlaylistDetail) => void;
 }
 
 const PlaylistDetail: React.FC<PlaylistDetailProps> = ({ 
@@ -22,10 +23,18 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
     onBack, 
     deviceId, 
     player, 
-    sdkError 
+    sdkError,
+    onPlaylistLoaded
 }) => {
     const { playlist, loading, error } = usePlaylistData(playlistId);
     const { playingTrackId, isPaused } = usePlayerState(player);
+
+    // Notify parent when playlist is loaded
+    useEffect(() => {
+        if (playlist && onPlaylistLoaded) {
+            onPlaylistLoaded(playlist);
+        }
+    }, [playlist, onPlaylistLoaded]);
 
     const handlePlay = (track: SpotifyTrack) => {
         handlePlayTrack(track, { deviceId, sdkError, player, playingTrackId, isPaused });
