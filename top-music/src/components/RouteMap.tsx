@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { GoogleMap, DirectionsRenderer, Marker, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { SpotifyTrack } from '../services/spotify';
 import { calculateTrackPositions, decodePolyline, interpolatePointAlongRoute, splitPolylineAtPercentage, calculateCoveragePercentage, type TrackPosition } from '../utils/routeUtils';
+import { formatPlaybackTime } from '../utils/formatters';
 
 interface RouteMapProps {
   origin: { lat: number; lng: number };
@@ -323,8 +324,7 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
                   {selectedTrack.track.artists.map(a => a.name).join(', ')}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Plays at: {Math.floor(selectedTrack.cumulativeTimeMs / 60000)}:
-                  {String(Math.floor((selectedTrack.cumulativeTimeMs % 60000) / 1000)).padStart(2, '0')}
+                  Plays at: {formatPlaybackTime(selectedTrack.cumulativeTimeMs)}
                 </p>
               </div>
             </div>

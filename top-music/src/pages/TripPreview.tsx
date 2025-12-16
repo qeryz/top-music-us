@@ -6,6 +6,7 @@ import { Clock, MapPin, Pencil, Music } from 'lucide-react';
 import RouteMap from '../components/RouteMap';
 import type { SpotifyPlaylistDetail } from '../services/spotify';
 import { calculatePlaylistDuration } from '../utils/routeUtils';
+import { formatPlaybackTime } from '../utils/formatters';
 
 import MyPlaylists from '../components/MyPlaylists';
 
@@ -102,17 +103,14 @@ const TripPreview: React.FC = () => {
                               </div>
                               
                               {(() => {
-                                const playlistMinutes = Math.floor(playlistDurationMs / 60000);
-                                const playlistSeconds = Math.floor((playlistDurationMs % 60000) / 1000);
                                 const routeSeconds = routeStats.durationSeconds;
                                 const coveragePercentage = Math.min((playlistDurationMs / 1000) / routeSeconds, 1);
-                                const gapSeconds = routeSeconds - (playlistDurationMs / 1000);
-                                const gapMinutes = Math.ceil(gapSeconds / 60);
+                                const gapDurationMs = routeSeconds * 1000 - playlistDurationMs;
                                 
                                 return (
                                   <>
                                     <div className="text-white text-sm mb-2">
-                                      {playlistMinutes}:{String(playlistSeconds).padStart(2, '0')} of music
+                                      {formatPlaybackTime(playlistDurationMs)} of music
                                     </div>
                                     
                                     {/* Progress Bar */}
@@ -128,7 +126,7 @@ const TripPreview: React.FC = () => {
                                     {/* Coverage Message */}
                                     {coveragePercentage < 1 ? (
                                       <div className="text-[#ff9500] text-xs font-medium">
-                                        ⚠️ {gapMinutes} min short of full coverage
+                                        ⚠️ {formatPlaybackTime(gapDurationMs)} short of full coverage
                                       </div>
                                     ) : (
                                       <div className="text-[#1ed760] text-xs font-medium">
