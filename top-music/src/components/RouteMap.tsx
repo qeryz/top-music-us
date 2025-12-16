@@ -34,6 +34,8 @@ const mapOptions = {
 
 const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks, playlistDurationMs, playlistId }) => {
   const [mapKey, setMapKey] = useState(0);
+  const [zoom, setZoom] = useState(10);
+  const mapRef = React.useRef<google.maps.Map | null>(null);
 
   const { directions, routeStats } = useRouteDirections(origin, destination);
   const trackPositions = useTrackPositions(directions, tracks);
@@ -51,6 +53,19 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
     setMapKey(prev => prev + 1);
   }, [playlistId]);
 
+  const onMapLoad = React.useCallback((map: google.maps.Map) => {
+    mapRef.current = map;
+  }, []);
+
+  const onZoomChanged = React.useCallback(() => {
+    if (mapRef.current) {
+      const newZoom = mapRef.current.getZoom();
+      if (newZoom !== undefined) {
+        setZoom(newZoom);
+      }
+    }
+  }, []);
+
   return (
     <GoogleMap
       key={`map-${mapKey}`}
@@ -58,6 +73,8 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
       center={origin}
       zoom={10}
       options={mapOptions}
+      onLoad={onMapLoad}
+      onZoomChanged={onZoomChanged}
     >
       {/* Render route - either default or dual-color based on coverage */}
       {directions && !coverageData && (
@@ -86,7 +103,7 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
       )}
 
       {/* Track Markers */}
-      <TrackMarkers trackPositions={trackPositions} />
+      <TrackMarkers trackPositions={trackPositions} zoom={zoom} />
 
     </GoogleMap>
   );

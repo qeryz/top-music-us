@@ -5,15 +5,47 @@ import { formatPlaybackTime } from '../utils/formatters';
 
 interface TrackMarkersProps {
   trackPositions: TrackPosition[];
+  zoom: number;
 }
 
-const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions }) => {
+const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => {
   const [selectedTrack, setSelectedTrack] = useState<TrackPosition | null>(null);
+
+  // Smart Decimation Logic
+  // Show fewer markers when zoomed out to prevent clutter
+  const visibleTracks = React.useMemo(() => {
+    if (zoom >= 10) return trackPositions; // Show all at high zoom
+
+    let intervalMs = 0;
+    if (zoom < 5) {
+      intervalMs = 60 * 60 * 1000; // 60 mins
+    } else if (zoom < 8) {
+      intervalMs = 15 * 60 * 1000; // 15 mins
+    } else {
+      intervalMs = 5 * 60 * 1000; // 5 mins
+    }
+
+    const filtered: TrackPosition[] = [];
+    let lastIncludedTime = -intervalMs; // Ensure first track is included
+
+    trackPositions.forEach((pos) => {
+      // Always include the very first and very last track
+      const isFirst = pos === trackPositions[0];
+      const isLast = pos === trackPositions[trackPositions.length - 1];
+
+      if (isFirst || isLast || (pos.cumulativeTimeMs - lastIncludedTime >= intervalMs)) {
+        filtered.push(pos);
+        lastIncludedTime = pos.cumulativeTimeMs;
+      }
+    });
+
+    return filtered;
+  }, [trackPositions, zoom]);
 
   return (
     <>
       {/* Track Markers */}
-      {trackPositions.map((trackPos, index) => {
+      {visibleTracks.map((trackPos, index) => {
         const albumImage = trackPos.track.album.images[0]?.url;
         
         return (
