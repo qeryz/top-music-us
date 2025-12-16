@@ -135,11 +135,15 @@ export const getPlaylist = async (id: string): Promise<SpotifyPlaylistDetail> =>
 export const getAccessToken = async (): Promise<string | null> => {
     try {
         const response = await fetch('/api/token');
-        if (!response.ok) return null;
+        if (!response.ok) {
+            console.error(`[getAccessToken] Failed to fetch token: ${response.status} ${response.statusText}`);
+            return null;
+        }
         const data = await response.json();
+        console.log('[getAccessToken] Token retrieved successfully');
         return data.access_token;
     } catch (e) {
-        console.error("Failed to fetch access token", e);
+        console.error("[getAccessToken] Error fetching access token:", e);
         return null;
     }
 };

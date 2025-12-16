@@ -40,18 +40,31 @@ export const useSpotifyPlayer = () => {
 
         window.onSpotifyWebPlaybackSDKReady = async () => {
             try {
-                const token = await getAccessToken();
+                // Verify we can get a token initially
+                const initialToken = await getAccessToken();
 
-                if (!token) {
+                if (!initialToken) {
                     const errorMsg = "[SDK] No access token available for Web Playback SDK";
                     console.error(errorMsg);
                     setError(errorMsg);
                     return;
                 }
 
+                console.log('[SDK] Initial token retrieved successfully');
+
                 const playerInstance = new window.Spotify.Player({
                     name: 'Roadie Web Player',
-                    getOAuthToken: (cb: (token: string) => void) => { cb(token); },
+                    getOAuthToken: async (cb: (token: string) => void) => { 
+                        // Dynamically fetch token each time Spotify requests it
+                        const token = await getAccessToken();
+                        if (token) {
+                            console.log('[SDK] Token provided to player');
+                            cb(token);
+                        } else {
+                            console.error('[SDK] Failed to get token for player');
+                            setError('Failed to get access token');
+                        }
+                    },
                     volume: 0.5
                 });
 
