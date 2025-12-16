@@ -1,14 +1,11 @@
-
 import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useJsApiLoader } from '@react-google-maps/api';
-import { Clock, MapPin, Pencil, Music } from 'lucide-react';
 import RouteMap from '../components/RouteMap';
 import type { SpotifyPlaylistDetail } from '../services/spotify';
 import { calculatePlaylistDuration } from '../utils/routeUtils';
-import { formatPlaybackTime } from '../utils/formatters';
-
-import MyPlaylists from '../components/MyPlaylists';
+import TripStatsCard from '../components/TripStatsCard';
+import TripPlaylistManager from '../components/TripPlaylistManager';
 
 const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
 
@@ -63,8 +60,6 @@ const TripPreview: React.FC = () => {
       {/* --- TOP HALF: MAP AREA --- */}
       <div className="relative w-[80vw] h-[70vh] mx-auto mt-24 mb-8 rounded-[40px] overflow-hidden shadow-2xl z-10">
             
-
-
             {/* Google Map */}
             {isLoaded ? (
                 <RouteMap 
@@ -82,110 +77,22 @@ const TripPreview: React.FC = () => {
             )}
 
             {/* Floating Info Card */}
-            <div className="absolute top-24 left-8 z-20 w-80 bg-[#0A120E]/80 backdrop-blur-xs border border-white/5 rounded-2xl p-6 shadow-xl">
-                 <h2 className="text-white font-bold text-lg leading-tight mb-1">
-                    {origin.address.split(',')[0]} to {destination.address.split(',')[0]}
-                 </h2>
-                 
-                 {routeStats ? (
-                     <>
-                        <div className="text-[#1ed760] font-medium text-sm mb-4">
-                           Est. {routeStats.duration} ({routeStats.distance})
-                        </div>
-
-                        {/* Playlist Coverage Info */}
-                        {selectedPlaylist && playlistDurationMs && routeStats.durationSeconds > 0 && (
-                          <>
-                            <div className="border-t border-white/10 pt-4 mb-4">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Music className="w-4 h-4 text-[#1ed760]" />
-                                <span className="text-white/70 text-xs font-medium">Playlist Coverage</span>
-                              </div>
-                              
-                              {(() => {
-                                const routeSeconds = routeStats.durationSeconds;
-                                const coveragePercentage = Math.min((playlistDurationMs / 1000) / routeSeconds, 1);
-                                const gapDurationMs = routeSeconds * 1000 - playlistDurationMs;
-                                
-                                return (
-                                  <>
-                                    <div className="text-white text-sm mb-2">
-                                      {formatPlaybackTime(playlistDurationMs)} of music
-                                    </div>
-                                    
-                                    {/* Progress Bar */}
-                                    <div className="w-full bg-white/10 rounded-full h-2 mb-2 overflow-hidden">
-                                      <div 
-                                        className={`h-full rounded-full transition-all duration-500 ${
-                                          coveragePercentage >= 1 ? 'bg-[#1ed760]' : 'bg-gradient-to-r from-[#1ed760] to-[#ff9500]'
-                                        }`}
-                                        style={{ width: `${Math.round(coveragePercentage * 100)}%` }}
-                                      />
-                                    </div>
-                                    
-                                    {/* Coverage Message */}
-                                    {coveragePercentage < 1 ? (
-                                      <div className="text-[#ff9500] text-xs font-medium">
-                                        ⚠️ {formatPlaybackTime(gapDurationMs)} short of full coverage
-                                      </div>
-                                    ) : (
-                                      <div className="text-[#1ed760] text-xs font-medium">
-                                        ✓ Full trip coverage
-                                      </div>
-                                    )}
-                                  </>
-                                );
-                              })()}
-                            </div>
-                          </>
-                        )}
-                     </>
-                 ) : (
-                     <div className="text-white/40 text-sm mb-4 animate-pulse">Calculating...</div>
-                 )}
-
-                <button 
-                    onClick={() => navigate('/dashboard')}
-                    className="cursor-pointer flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 px-4 rounded-full transition-colors"
-                >
-                    <Pencil className="w-3 h-3" />
-                    Edit Route
-                </button>
-            </div>
+            <TripStatsCard 
+              origin={origin}
+              destination={destination}
+              routeStats={routeStats}
+              selectedPlaylist={selectedPlaylist}
+              playlistDurationMs={playlistDurationMs}
+            />
 
       </div>
 
       {/* --- BOTTOM HALF: CONTENT --- */}
-      <div className="flex-1 px-8 py-12 max-w-7xl mx-auto w-full flex flex-col gap-8">
-          
-          {/* Tabs */}
-          <div className="flex items-center gap-8 border-b border-white/10 pb-4">
-            <button 
-                onClick={() => setActiveTab('my-playlists')}
-                className={`text-xl font-bold transition-colors ${activeTab === 'my-playlists' ? 'text-white border-b-2 border-white' : 'text-white/40 hover:text-white/70'}`}
-            >
-                My Playlists
-            </button>
-            <button 
-                onClick={() => setActiveTab('create-new')}
-                className={`text-xl font-bold transition-colors ${activeTab === 'create-new' ? 'text-white border-b-2 border-white' : 'text-white/40 hover:text-white/70'}`}
-            >
-                Create New
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          <div className="min-h-[300px]">
-             {activeTab === 'my-playlists' ? (
-                <MyPlaylists onPlaylistSelect={setSelectedPlaylist} />
-             ) : (
-                <div className="flex items-center justify-center h-64 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
-                    <p className="text-white/40 font-medium">Create New Playlist UI Coming Soon</p>
-                </div>
-             )}
-          </div>
-
-      </div>
+      <TripPlaylistManager 
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onPlaylistSelect={setSelectedPlaylist}
+      />
 
     </div>
   );
