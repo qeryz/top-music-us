@@ -72,6 +72,7 @@ const TripPreview: React.FC = () => {
                     onRouteStatsCalculated={setRouteStats}
                     tracks={tracks as any}
                     playlistDurationMs={playlistDurationMs}
+                    playlistId={selectedPlaylist?.id}
                 />
             ) : (
                 <div className="w-full h-full bg-[#1A1A1A] flex items-center justify-center text-white/30">

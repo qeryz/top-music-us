@@ -9,6 +9,7 @@ interface RouteMapProps {
   onRouteStatsCalculated: (stats: { distance: string; duration: string; durationSeconds: number }) => void;
   tracks?: SpotifyTrack[];
   playlistDurationMs?: number; // Total duration of the playlist in milliseconds
+  playlistId?: string; // Unique playlist identifier to force re-render on playlist change
 }
 
 const containerStyle = {
@@ -27,7 +28,7 @@ const mapOptions = {
   colorScheme: "DARK"
 };
 
-const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks, playlistDurationMs }) => {
+const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks, playlistDurationMs, playlistId }) => {
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [trackPositions, setTrackPositions] = useState<TrackPosition[]>([]);
   const [selectedTrack, setSelectedTrack] = useState<TrackPosition | null>(null);
@@ -39,6 +40,12 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
     gapMinutes: number;
   } | null>(null);
   const [showCoverageInfo, setShowCoverageInfo] = useState(false);
+  const [mapKey, setMapKey] = useState(0);
+
+  // Force map re-render when playlist changes to clear old polylines
+  useEffect(() => {
+    setMapKey(prev => prev + 1);
+  }, [playlistId]);
 
   // Fetch route directions (only when origin/destination changes)
   useEffect(() => {
@@ -105,7 +112,16 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
 
   // Calculate coverage visualization when playlist duration or directions change
   useEffect(() => {
-    if (!directions || !playlistDurationMs) {
+    console.log('[RouteMap] Coverage effect triggered:', { 
+      hasDirections: !!directions, 
+      playlistDurationMs, 
+      tracksCount: tracks?.length,
+      playlistId
+    });
+    
+    // Clear coverage if no playlist is selected or no duration
+    if (!directions || !playlistDurationMs || !playlistId) {
+      console.log('[RouteMap] Clearing coverage data - missing directions, duration, or playlistId');
       setCoverageData(null);
       return;
     }
@@ -118,6 +134,7 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
     if (!routeDurationSeconds) return;
 
     const coveragePercentage = calculateCoveragePercentage(playlistDurationMs, routeDurationSeconds);
+    console.log('[RouteMap] Coverage calculation:', { playlistDurationMs, routeDurationSeconds, coveragePercentage });
     
     // Decode polyline
     const encodedPolyline = route.overview_polyline;
@@ -149,10 +166,19 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
         gapMinutes: 0
       });
     }
-  }, [directions, playlistDurationMs]);
+  }, [directions, playlistDurationMs, tracks, playlistId]);
+
+  // Cleanup effect: explicitly clear coverage when playlist is deselected
+  useEffect(() => {
+    if (!playlistId && coverageData) {
+      console.log('[RouteMap] Playlist deselected - clearing coverage data');
+      setCoverageData(null);
+    }
+  }, [playlistId, coverageData]);
 
   return (
     <GoogleMap
+      key={`map-${mapKey}`}
       mapContainerStyle={containerStyle}
       center={origin}
       zoom={10}
@@ -176,8 +202,8 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
       )}
 
       {/* Dual-color route when playlist coverage is calculated */}
-      {directions && coverageData && (
-        <>
+      {directions && coverageData && playlistId && (
+        <React.Fragment key={`coverage-${playlistId}`}>
           {/* Hide default route markers but keep the route structure */}
           <DirectionsRenderer
             directions={directions}
@@ -252,7 +278,7 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
               </div>
             </InfoWindow>
           )}
-        </>
+        </React.Fragment>
       )}
 
       {/* Track Markers */}
