@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, DirectionsRenderer, Marker, InfoWindow, Polyline } from '@react-google-maps/api';
+import { GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
 import type { SpotifyTrack } from '../services/spotify';
 import { calculateTrackPositions, decodePolyline, interpolatePointAlongRoute, splitPolylineAtPercentage, calculateCoveragePercentage, type TrackPosition } from '../utils/routeUtils';
-import { formatPlaybackTime } from '../utils/formatters';
+import CoverageRoute from './CoverageRoute';
+import TrackMarkers from './TrackMarkers';
 
 interface RouteMapProps {
   origin: { lat: number; lng: number };
@@ -32,7 +33,6 @@ const mapOptions = {
 const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks, playlistDurationMs, playlistId }) => {
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [trackPositions, setTrackPositions] = useState<TrackPosition[]>([]);
-  const [selectedTrack, setSelectedTrack] = useState<TrackPosition | null>(null);
   const [coverageData, setCoverageData] = useState<{
     coveredPath: google.maps.LatLng[];
     uncoveredPath: google.maps.LatLng[];
@@ -40,7 +40,6 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
     endPoint: google.maps.LatLng | null;
     gapMinutes: number;
   } | null>(null);
-  const [showCoverageInfo, setShowCoverageInfo] = useState(false);
   const [mapKey, setMapKey] = useState(0);
 
   // Force map re-render when playlist changes to clear old polylines
@@ -204,133 +203,16 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
 
       {/* Dual-color route when playlist coverage is calculated */}
       {directions && coverageData && playlistId && (
-        <React.Fragment key={`coverage-${playlistId}`}>
-          {/* Hide default route markers but keep the route structure */}
-          <DirectionsRenderer
-            directions={directions}
-            options={{
-              polylineOptions: {
-                strokeOpacity: 0, // Hide the default polyline
-              },
-              markerOptions: {
-                icon: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"
-              },
-              suppressMarkers: false
-            }}
-          />
-
-          {/* Covered portion - Green */}
-          {coverageData.coveredPath.length > 0 && (
-            <Polyline
-              path={coverageData.coveredPath}
-              options={{
-                strokeColor: "#1ed760",
-                strokeWeight: 6,
-                strokeOpacity: 0.8,
-                zIndex: 100
-              }}
-            />
-          )}
-
-          {/* Uncovered portion - Orange */}
-          {coverageData.uncoveredPath.length > 0 && (
-            <Polyline
-              path={coverageData.uncoveredPath}
-              options={{
-                strokeColor: "#ff9500",
-                strokeWeight: 6,
-                strokeOpacity: 0.8,
-                zIndex: 100
-              }}
-            />
-          )}
-
-          {/* End-of-playlist marker */}
-          {coverageData.endPoint && (
-            <Marker
-              position={coverageData.endPoint}
-              icon={{
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 8,
-                fillColor: "#ff9500",
-                fillOpacity: 1,
-                strokeColor: "#ffffff",
-                strokeWeight: 2,
-              }}
-              onClick={() => setShowCoverageInfo(true)}
-              zIndex={2000}
-            />
-          )}
-
-          {/* Coverage info window */}
-          {showCoverageInfo && coverageData.endPoint && (
-            <InfoWindow
-              position={coverageData.endPoint}
-              onCloseClick={() => setShowCoverageInfo(false)}
-            >
-              <div className="p-2">
-                <h3 className="font-bold text-sm text-gray-900 mb-1">🎵 Playlist Ends Here</h3>
-                <p className="text-xs text-gray-600">
-                  {coverageData.gapMinutes} minute{coverageData.gapMinutes !== 1 ? 's' : ''} of trip remaining
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Coverage: {Math.round(coverageData.coveragePercentage * 100)}%
-                </p>
-              </div>
-            </InfoWindow>
-          )}
-        </React.Fragment>
+        <CoverageRoute 
+          directions={directions}
+          coverageData={coverageData}
+          playlistId={playlistId}
+        />
       )}
 
       {/* Track Markers */}
-      {trackPositions.map((trackPos, index) => {
-        const albumImage = trackPos.track.album.images[0]?.url;
-        
-        return (
-          <Marker
-            key={`${trackPos.track.id}-${index}`}
-            position={trackPos.position!}
-            icon={{
-              url: albumImage || 'https://via.placeholder.com/40',
-              scaledSize: new google.maps.Size(40, 40),
-              anchor: new google.maps.Point(20, 20),
-            }}
-            onClick={() => setSelectedTrack(trackPos)}
-            zIndex={1000 + index}
-          />
-        );
-      })}
+      <TrackMarkers trackPositions={trackPositions} />
 
-      {/* InfoWindow for selected track */}
-      {selectedTrack && selectedTrack.position && (
-        <InfoWindow
-          position={selectedTrack.position}
-          onCloseClick={() => setSelectedTrack(null)}
-        >
-          <div className="p-2 max-w-xs">
-            <div className="flex items-start gap-3">
-              {selectedTrack.track.album.images[0] && (
-                <img 
-                  src={selectedTrack.track.album.images[0].url} 
-                  alt={selectedTrack.track.album.name}
-                  className="w-16 h-16 rounded object-cover"
-                />
-              )}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-sm text-gray-900 truncate">
-                  {selectedTrack.track.name}
-                </h3>
-                <p className="text-xs text-gray-600 truncate">
-                  {selectedTrack.track.artists.map(a => a.name).join(', ')}
-                </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Plays at: {formatPlaybackTime(selectedTrack.cumulativeTimeMs)}
-                </p>
-              </div>
-            </div>
-          </div>
-        </InfoWindow>
-      )}
     </GoogleMap>
   );
 };
