@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { GoogleMap, DirectionsRenderer, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, DirectionsRenderer, Marker, InfoWindow, Polyline } from '@react-google-maps/api';
 import type { SpotifyTrack } from '../services/spotify';
-import { calculateTrackPositions, decodePolyline, interpolatePointAlongRoute, type TrackPosition } from '../utils/routeUtils';
+import { calculateTrackPositions, decodePolyline, interpolatePointAlongRoute, splitPolylineAtPercentage, calculateCoveragePercentage, type TrackPosition } from '../utils/routeUtils';
 
 interface RouteMapProps {
   origin: { lat: number; lng: number };
   destination: { lat: number; lng: number };
-  onRouteStatsCalculated: (stats: { distance: string; duration: string }) => void;
+  onRouteStatsCalculated: (stats: { distance: string; duration: string; durationSeconds: number }) => void;
   tracks?: SpotifyTrack[];
+  playlistDurationMs?: number; // Total duration of the playlist in milliseconds
 }
 
 const containerStyle = {
@@ -26,10 +27,18 @@ const mapOptions = {
   colorScheme: "DARK"
 };
 
-const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks }) => {
+const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks, playlistDurationMs }) => {
   const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [trackPositions, setTrackPositions] = useState<TrackPosition[]>([]);
   const [selectedTrack, setSelectedTrack] = useState<TrackPosition | null>(null);
+  const [coverageData, setCoverageData] = useState<{
+    coveredPath: google.maps.LatLng[];
+    uncoveredPath: google.maps.LatLng[];
+    coveragePercentage: number;
+    endPoint: google.maps.LatLng | null;
+    gapMinutes: number;
+  } | null>(null);
+  const [showCoverageInfo, setShowCoverageInfo] = useState(false);
 
   // Fetch route directions (only when origin/destination changes)
   useEffect(() => {
@@ -53,7 +62,8 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
             const leg = route.legs[0];
             onRouteStatsCalculated({
                 distance: leg.distance?.text || "Unknown",
-                duration: leg.duration?.text || "Unknown"
+                duration: leg.duration?.text || "Unknown",
+                durationSeconds: leg.duration?.value || 0
             });
           }
         } else {
@@ -93,6 +103,54 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
     }
   }, [directions, tracks]);
 
+  // Calculate coverage visualization when playlist duration or directions change
+  useEffect(() => {
+    if (!directions || !playlistDurationMs) {
+      setCoverageData(null);
+      return;
+    }
+
+    const route = directions.routes[0];
+    if (!route || !route.legs || route.legs.length === 0) return;
+
+    const leg = route.legs[0];
+    const routeDurationSeconds = leg.duration?.value;
+    if (!routeDurationSeconds) return;
+
+    const coveragePercentage = calculateCoveragePercentage(playlistDurationMs, routeDurationSeconds);
+    
+    // Decode polyline
+    const encodedPolyline = route.overview_polyline;
+    if (!encodedPolyline) return;
+    
+    const polylinePoints = decodePolyline(encodedPolyline);
+    
+    if (coveragePercentage < 1.0) {
+      // Playlist is shorter than route - split the polyline
+      const [coveredPath, uncoveredPath] = splitPolylineAtPercentage(polylinePoints, coveragePercentage);
+      const endPoint = coveredPath[coveredPath.length - 1] || null;
+      const gapSeconds = routeDurationSeconds * (1 - coveragePercentage);
+      const gapMinutes = Math.ceil(gapSeconds / 60);
+      
+      setCoverageData({
+        coveredPath,
+        uncoveredPath,
+        coveragePercentage,
+        endPoint,
+        gapMinutes
+      });
+    } else {
+      // Playlist covers entire route or is longer
+      setCoverageData({
+        coveredPath: polylinePoints,
+        uncoveredPath: [],
+        coveragePercentage,
+        endPoint: null,
+        gapMinutes: 0
+      });
+    }
+  }, [directions, playlistDurationMs]);
+
   return (
     <GoogleMap
       mapContainerStyle={containerStyle}
@@ -100,7 +158,8 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
       zoom={10}
       options={mapOptions}
     >
-      {directions && (
+      {/* Render route - either default or dual-color based on coverage */}
+      {directions && !coverageData && (
         <DirectionsRenderer
           directions={directions}
           options={{
@@ -114,6 +173,86 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
             }
           }}
         />
+      )}
+
+      {/* Dual-color route when playlist coverage is calculated */}
+      {directions && coverageData && (
+        <>
+          {/* Hide default route markers but keep the route structure */}
+          <DirectionsRenderer
+            directions={directions}
+            options={{
+              polylineOptions: {
+                strokeOpacity: 0, // Hide the default polyline
+              },
+              markerOptions: {
+                icon: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"
+              },
+              suppressMarkers: false
+            }}
+          />
+
+          {/* Covered portion - Green */}
+          {coverageData.coveredPath.length > 0 && (
+            <Polyline
+              path={coverageData.coveredPath}
+              options={{
+                strokeColor: "#1ed760",
+                strokeWeight: 6,
+                strokeOpacity: 0.8,
+                zIndex: 100
+              }}
+            />
+          )}
+
+          {/* Uncovered portion - Orange */}
+          {coverageData.uncoveredPath.length > 0 && (
+            <Polyline
+              path={coverageData.uncoveredPath}
+              options={{
+                strokeColor: "#ff9500",
+                strokeWeight: 6,
+                strokeOpacity: 0.8,
+                zIndex: 100
+              }}
+            />
+          )}
+
+          {/* End-of-playlist marker */}
+          {coverageData.endPoint && (
+            <Marker
+              position={coverageData.endPoint}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: 8,
+                fillColor: "#ff9500",
+                fillOpacity: 1,
+                strokeColor: "#ffffff",
+                strokeWeight: 2,
+              }}
+              onClick={() => setShowCoverageInfo(true)}
+              zIndex={2000}
+            />
+          )}
+
+          {/* Coverage info window */}
+          {showCoverageInfo && coverageData.endPoint && (
+            <InfoWindow
+              position={coverageData.endPoint}
+              onCloseClick={() => setShowCoverageInfo(false)}
+            >
+              <div className="p-2">
+                <h3 className="font-bold text-sm text-gray-900 mb-1">🎵 Playlist Ends Here</h3>
+                <p className="text-xs text-gray-600">
+                  {coverageData.gapMinutes} minute{coverageData.gapMinutes !== 1 ? 's' : ''} of trip remaining
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Coverage: {Math.round(coverageData.coveragePercentage * 100)}%
+                </p>
+              </div>
+            </InfoWindow>
+          )}
+        </>
       )}
 
       {/* Track Markers */}

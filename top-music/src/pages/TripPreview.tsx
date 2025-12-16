@@ -2,9 +2,10 @@
 import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useJsApiLoader } from '@react-google-maps/api';
-import { Clock, MapPin, Pencil } from 'lucide-react'; // Using Lucide icons for now
+import { Clock, MapPin, Pencil, Music } from 'lucide-react';
 import RouteMap from '../components/RouteMap';
 import type { SpotifyPlaylistDetail } from '../services/spotify';
+import { calculatePlaylistDuration } from '../utils/routeUtils';
 
 import MyPlaylists from '../components/MyPlaylists';
 
@@ -18,7 +19,7 @@ const TripPreview: React.FC = () => {
   const origin = state?.origin;
   const destination = state?.destination;
 
-  const [routeStats, setRouteStats] = useState<{ distance: string; duration: string } | null>(null);
+  const [routeStats, setRouteStats] = useState<{ distance: string; duration: string; durationSeconds: number } | null>(null);
   const [activeTab, setActiveTab] = useState<'my-playlists' | 'create-new'>('my-playlists');
   const [selectedPlaylist, setSelectedPlaylist] = useState<SpotifyPlaylistDetail | null>(null);
 
@@ -26,6 +27,12 @@ const TripPreview: React.FC = () => {
   const tracks = useMemo(() => {
     return selectedPlaylist?.tracks.items.map(item => item.track).filter(Boolean) || undefined;
   }, [selectedPlaylist]);
+
+  // Calculate playlist duration
+  const playlistDurationMs = useMemo(() => {
+    if (!tracks || tracks.length === 0) return undefined;
+    return calculatePlaylistDuration(tracks);
+  }, [tracks]);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -64,6 +71,7 @@ const TripPreview: React.FC = () => {
                     destination={destination}
                     onRouteStatsCalculated={setRouteStats}
                     tracks={tracks as any}
+                    playlistDurationMs={playlistDurationMs}
                 />
             ) : (
                 <div className="w-full h-full bg-[#1A1A1A] flex items-center justify-center text-white/30">
@@ -72,15 +80,67 @@ const TripPreview: React.FC = () => {
             )}
 
             {/* Floating Info Card */}
-            <div className="absolute top-24 left-8 z-20 w-80 bg-[#0A120E]/90 backdrop-blur-xl border border-white/5 rounded-2xl p-6 shadow-xl">
+            <div className="absolute top-24 left-8 z-20 w-80 bg-[#0A120E]/80 backdrop-blur-xs border border-white/5 rounded-2xl p-6 shadow-xl">
                  <h2 className="text-white font-bold text-lg leading-tight mb-1">
                     {origin.address.split(',')[0]} to {destination.address.split(',')[0]}
                  </h2>
                  
                  {routeStats ? (
-                     <div className="text-[#1ed760] font-medium text-sm mb-4">
-                        Est. {routeStats.duration} ({routeStats.distance})
-                     </div>
+                     <>
+                        <div className="text-[#1ed760] font-medium text-sm mb-4">
+                           Est. {routeStats.duration} ({routeStats.distance})
+                        </div>
+
+                        {/* Playlist Coverage Info */}
+                        {selectedPlaylist && playlistDurationMs && routeStats.durationSeconds > 0 && (
+                          <>
+                            <div className="border-t border-white/10 pt-4 mb-4">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Music className="w-4 h-4 text-[#1ed760]" />
+                                <span className="text-white/70 text-xs font-medium">Playlist Coverage</span>
+                              </div>
+                              
+                              {(() => {
+                                const playlistMinutes = Math.floor(playlistDurationMs / 60000);
+                                const playlistSeconds = Math.floor((playlistDurationMs % 60000) / 1000);
+                                const routeSeconds = routeStats.durationSeconds;
+                                const coveragePercentage = Math.min((playlistDurationMs / 1000) / routeSeconds, 1);
+                                const gapSeconds = routeSeconds - (playlistDurationMs / 1000);
+                                const gapMinutes = Math.ceil(gapSeconds / 60);
+                                
+                                return (
+                                  <>
+                                    <div className="text-white text-sm mb-2">
+                                      {playlistMinutes}:{String(playlistSeconds).padStart(2, '0')} of music
+                                    </div>
+                                    
+                                    {/* Progress Bar */}
+                                    <div className="w-full bg-white/10 rounded-full h-2 mb-2 overflow-hidden">
+                                      <div 
+                                        className={`h-full rounded-full transition-all duration-500 ${
+                                          coveragePercentage >= 1 ? 'bg-[#1ed760]' : 'bg-gradient-to-r from-[#1ed760] to-[#ff9500]'
+                                        }`}
+                                        style={{ width: `${Math.round(coveragePercentage * 100)}%` }}
+                                      />
+                                    </div>
+                                    
+                                    {/* Coverage Message */}
+                                    {coveragePercentage < 1 ? (
+                                      <div className="text-[#ff9500] text-xs font-medium">
+                                        ⚠️ {gapMinutes} min short of full coverage
+                                      </div>
+                                    ) : (
+                                      <div className="text-[#1ed760] text-xs font-medium">
+                                        ✓ Full trip coverage
+                                      </div>
+                                    )}
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </>
+                        )}
+                     </>
                  ) : (
                      <div className="text-white/40 text-sm mb-4 animate-pulse">Calculating...</div>
                  )}

@@ -119,3 +119,79 @@ export const interpolatePointAlongRoute = (
 
     return polylinePoints[polylinePoints.length - 1];
 };
+
+/**
+ * Calculates the total duration of a playlist in milliseconds
+ */
+export const calculatePlaylistDuration = (tracks: SpotifyTrack[]): number => {
+    return tracks.reduce((total, track) => total + track.duration_ms, 0);
+};
+
+/**
+ * Calculates what percentage of the route is covered by the playlist
+ * Returns a value between 0.0 and 1.0 (or > 1.0 if playlist is longer than route)
+ */
+export const calculateCoveragePercentage = (
+    playlistDurationMs: number,
+    routeDurationSeconds: number
+): number => {
+    const routeDurationMs = routeDurationSeconds * 1000;
+    return playlistDurationMs / routeDurationMs;
+};
+
+/**
+ * Splits a polyline into two segments at a given percentage point
+ * Returns [coveredSegment, uncoveredSegment]
+ */
+export const splitPolylineAtPercentage = (
+    polylinePoints: google.maps.LatLng[],
+    percentage: number
+): [google.maps.LatLng[], google.maps.LatLng[]] => {
+    if (percentage <= 0) {
+        return [[], polylinePoints];
+    }
+    if (percentage >= 1) {
+        return [polylinePoints, []];
+    }
+
+    // Calculate total distance
+    let totalDistance = 0;
+    const distances: number[] = [0];
+
+    for (let i = 1; i < polylinePoints.length; i++) {
+        const dist = google.maps.geometry.spherical.computeDistanceBetween(
+            polylinePoints[i - 1],
+            polylinePoints[i]
+        );
+        totalDistance += dist;
+        distances.push(totalDistance);
+    }
+
+    const targetDistance = totalDistance * percentage;
+
+    // Find the segment containing the split point
+    for (let i = 1; i < distances.length; i++) {
+        if (distances[i] >= targetDistance) {
+            const segmentStart = polylinePoints[i - 1];
+            const segmentEnd = polylinePoints[i];
+            const segmentDistance = distances[i] - distances[i - 1];
+            const distanceIntoSegment = targetDistance - distances[i - 1];
+            const segmentPercentage = distanceIntoSegment / segmentDistance;
+
+            // Calculate the split point
+            const lat = segmentStart.lat() + (segmentEnd.lat() - segmentStart.lat()) * segmentPercentage;
+            const lng = segmentStart.lng() + (segmentEnd.lng() - segmentStart.lng()) * segmentPercentage;
+            const splitPoint = new google.maps.LatLng(lat, lng);
+
+            // Build the two segments
+            const coveredSegment = [...polylinePoints.slice(0, i), splitPoint];
+            const uncoveredSegment = [splitPoint, ...polylinePoints.slice(i)];
+
+            return [coveredSegment, uncoveredSegment];
+        }
+    }
+
+    // Fallback (shouldn't reach here)
+    return [polylinePoints, []];
+};
+
