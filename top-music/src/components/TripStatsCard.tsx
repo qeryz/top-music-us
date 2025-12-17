@@ -85,7 +85,12 @@ const TripStatsCard: React.FC<TripStatsCardProps> = ({
       )}
 
       <button 
-        onClick={() => navigate('/dashboard')}
+        onClick={() => navigate('/dashboard', { 
+          state: { 
+            initialOrigin: origin, 
+            initialDestination: destination 
+          } 
+        })}
         className="cursor-pointer flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-bold py-2 px-4 rounded-full transition-colors"
       >
         <Pencil className="w-3 h-3" />

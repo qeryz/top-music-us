@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import mapLines from '../assets/map-lines.png';
 import { useJsApiLoader } from '@react-google-maps/api';
 import PlacesAutocomplete from '../components/PlacesAutocomplete';
@@ -9,8 +9,11 @@ const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
 
 const TripPlanner: React.FC = () => {
   const navigate = useNavigate();
-  const [origin, setOrigin] = useState<{ address: string; lat: number; lng: number } | null>(null);
-  const [destination, setDestination] = useState<{ address: string; lat: number; lng: number } | null>(null);
+  const location = useLocation();
+  const { initialOrigin, initialDestination } = location.state || {}; // Get initial state if editing
+
+  const [origin, setOrigin] = useState<{ address: string; lat: number; lng: number } | null>(initialOrigin || null);
+  const [destination, setDestination] = useState<{ address: string; lat: number; lng: number } | null>(initialDestination || null);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -70,6 +73,7 @@ const TripPlanner: React.FC = () => {
                       placeholder="Your current location"
                       onLocationSelect={setOrigin}
                       onClear={() => setOrigin(null)}
+                      defaultValue={initialOrigin?.address}
                     />
 
                     <PlacesAutocomplete 
@@ -78,6 +82,7 @@ const TripPlanner: React.FC = () => {
                       placeholder="Enter your destination..."
                       onLocationSelect={setDestination}
                       onClear={() => setDestination(null)}
+                      defaultValue={initialDestination?.address}
                     />
                   </>
                 ) : (
