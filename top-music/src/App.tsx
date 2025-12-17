@@ -59,11 +59,15 @@ const AppContent = () => {
     );
 };
 
+import { SpotifyPlayerProvider } from './context/SpotifyPlayerContext';
+
 function App() {
   return (
     <Router>
        <AuthProvider>
-          <AppContent />
+          <SpotifyPlayerProvider>
+             <AppContent />
+          </SpotifyPlayerProvider>
        </AuthProvider>
     </Router>
   );
