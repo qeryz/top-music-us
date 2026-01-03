@@ -16,6 +16,7 @@ export interface SpotifyPlaylist {
     external_urls: {
         spotify: string;
     };
+    collaborative: boolean;
 }
 
 export interface PlaylistResponse {
@@ -101,9 +102,17 @@ export interface SpotifyPlaylistTrack {
     track: SpotifyTrack;
 }
 
+export interface SpotifyUser {
+    id: string;
+    display_name: string;
+    email?: string;
+    images?: SpotifyImage[];
+}
+
 export interface SpotifyPlaylistDetail extends SpotifyPlaylist {
     description: string;
     owner: {
+        id: string;
         display_name: string;
     };
     tracks: {
@@ -144,6 +153,31 @@ export const getAccessToken = async (): Promise<string | null> => {
         return data.access_token;
     } catch (e) {
         console.error("[getAccessToken] Error fetching access token:", e);
+        return null;
+    }
+};
+
+/**
+ * Fetches the current user's profile.
+ */
+export const getCurrentUser = async (): Promise<SpotifyUser | null> => {
+    try {
+        const token = await getAccessToken();
+        if (!token) return null;
+
+        const response = await fetch('https://api.spotify.com/v1/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch user profile: ${response.statusText}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching current user:', error);
         return null;
     }
 };

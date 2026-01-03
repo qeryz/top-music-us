@@ -8,6 +8,7 @@ import TrackList from './TrackList';
 import TrackSearch from './TrackSearch';
 import { usePlaylistData } from '../hooks/usePlaylistData';
 import { usePlayerState } from '../hooks/usePlayerState';
+import { useAuth } from '../context/AuthContext';
 import { handlePlayTrack } from '../utils/playbackControls';
 
 interface PlaylistDetailProps {
@@ -29,6 +30,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
 }) => {
     const { playlist: initialPlaylist, loading, error } = usePlaylistData(playlistId);
     const { playingTrackId, isPaused } = usePlayerState(player);
+    const { user } = useAuth();
     
     // Local state for playlist manipulation (reordering, adding tracks)
     const [localPlaylist, setLocalPlaylist] = useState<SpotifyPlaylistDetail | null>(null);
@@ -85,6 +87,9 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
     if (error) return <PlaylistError message={error} onRetry={() => window.location.reload()} />;
     if (!localPlaylist) return null;
 
+    // Check permissions: Owner ID matches User ID OR Playlist is collaborative
+    const canEdit = localPlaylist?.owner?.id === user?.id || localPlaylist?.collaborative;
+
     return (
         <div className="flex flex-col h-full animate-in fade-in duration-300">
             <PlaylistHeader 
@@ -111,26 +116,28 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
                     {!isPaused ? <Pause className="w-7 h-7 fill-black" /> : <Play className="w-7 h-7 fill-black translate-x-0.5" />}
                 </button>
 
-                <button 
-                    onClick={() => setIsEditing(!isEditing)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
-                        isEditing 
-                        ? 'bg-white text-black hover:bg-white/90' 
-                        : 'bg-white/10 text-white hover:bg-white/20'
-                    }`}
-                >
-                    {isEditing ? (
-                        <>
-                            <Check className="w-4 h-4" />
-                            <span>Done</span>
-                        </>
-                    ) : (
-                        <>
-                            <Pen className="w-4 h-4" />
-                            <span>Edit Playlist</span>
-                        </>
-                    )}
-                </button>
+                {canEdit && (
+                    <button 
+                        onClick={() => setIsEditing(!isEditing)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
+                            isEditing 
+                            ? 'bg-white text-black hover:bg-white/90' 
+                            : 'bg-white/10 text-white hover:bg-white/20'
+                        }`}
+                    >
+                        {isEditing ? (
+                            <>
+                                <Check className="w-4 h-4" />
+                                <span>Done</span>
+                            </>
+                        ) : (
+                            <>
+                                <Pen className="w-4 h-4" />
+                                <span>Edit Playlist</span>
+                            </>
+                        )}
+                    </button>
+                )}
             </div>
 
             {isEditing && (
