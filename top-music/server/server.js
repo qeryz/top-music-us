@@ -301,7 +301,7 @@ app.get('/api/playlist/:id', async (req, res) => {
 // Save Playlist (Replace Tracks)
 app.put('/api/save-playlist', async (req, res) => {
     const access_token = req.cookies.access_token;
-    const { playlist_id, uris } = req.body;
+    const { playlist_id, uris, snapshot_id } = req.body;
 
     if (!access_token) {
         return res.status(401).send('No access token found');
@@ -312,12 +312,18 @@ app.put('/api/save-playlist', async (req, res) => {
     }
 
     try {
+        // Prepare request body, optionally including snapshot_id for safety
+        const requestBody = { uris };
+        if (snapshot_id) {
+            requestBody.snapshot_id = snapshot_id; // Spotify will check this against current version
+        }
+
         // Spotify's Replace Playlist Items endpoint
-        await axios.put(`https://api.spotify.com/v1/playlists/${playlist_id}/tracks`, 
-            { uris }, 
+        const response = await axios.put(`https://api.spotify.com/v1/playlists/${playlist_id}/tracks`, 
+            requestBody, 
             { headers: { 'Authorization': 'Bearer ' + access_token } }
         );
-        res.status(204).send();
+        res.json(response.data);
     } catch (error) {
         console.error(`Error updating playlist ${playlist_id}:`, error.response ? error.response.data : error.message);
         res.status(error.response ? error.response.status : 500).send(error.message);

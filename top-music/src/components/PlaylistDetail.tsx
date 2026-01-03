@@ -93,12 +93,26 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
             setIsSaving(true);
             try {
                 const uris = localPlaylist.tracks.items.map(item => item.track.uri);
-                await savePlaylist(initialPlaylist.id, uris);
+                // Pass snapshot_id to ensure we are updating the version we think we are
+                // Use localPlaylist.snapshot_id as it may have been updated by previous saves
+                const currentSnapshotId = localPlaylist.snapshot_id || initialPlaylist.snapshot_id;
+                const response = await savePlaylist(initialPlaylist.id, uris, currentSnapshotId);
+                
+                // Update local snapshot_id with the new one from server to stay in sync
+                if (response.snapshot_id) {
+                    setLocalPlaylist(prev => prev ? ({ ...prev, snapshot_id: response.snapshot_id }) : null);
+                }
+                
                 setIsEditing(false);
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Failed to save playlist", err);
-                alert("Failed to save changes to Spotify. Please try again.");
-            } finally {
+                // Check if error is due to snapshot mismatch/version conflict
+                // Spotify typically returns 409 or 400 for version issues
+                if (err.message.includes('snapshot') || err.message.includes('version') || err.message.includes('modified')) {
+                    alert("This playlist has been modified by someone else since you opened it. Please refresh the page and try again.");
+                } else {
+                    alert("Failed to save changes to Spotify. Please try again.");
+                }
                 setIsSaving(false);
             }
         } else {
