@@ -113,6 +113,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
                 } else {
                     alert("Failed to save changes to Spotify. Please try again.");
                 }
+            } finally {
                 setIsSaving(false);
             }
         } else {
