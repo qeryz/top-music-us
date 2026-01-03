@@ -10,6 +10,7 @@ import { usePlaylistData } from '../hooks/usePlaylistData';
 import { usePlayerState } from '../hooks/usePlayerState';
 import { useAuth } from '../context/AuthContext';
 import { handlePlayTrack } from '../utils/playbackControls';
+import { savePlaylist } from '../services/spotify';
 
 interface PlaylistDetailProps {
     playlistId: string;
@@ -35,6 +36,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
     // Local state for playlist manipulation (reordering, adding tracks)
     const [localPlaylist, setLocalPlaylist] = useState<SpotifyPlaylistDetail | null>(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     // Sync local playlist state when data fetch is complete
     useEffect(() => {
@@ -83,6 +85,28 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
         });
     };
 
+    const handleToggleEdit = async () => {
+        if (isEditing) {
+            // User is clicking "Done" - Save changes
+            if (!localPlaylist || !initialPlaylist) return;
+            
+            setIsSaving(true);
+            try {
+                const uris = localPlaylist.tracks.items.map(item => item.track.uri);
+                await savePlaylist(initialPlaylist.id, uris);
+                setIsEditing(false);
+            } catch (err) {
+                console.error("Failed to save playlist", err);
+                alert("Failed to save changes to Spotify. Please try again.");
+            } finally {
+                setIsSaving(false);
+            }
+        } else {
+            // User is clicking "Edit"
+            setIsEditing(true);
+        }
+    };
+
     if (loading) return <PlaylistLoading />;
     if (error) return <PlaylistError message={error} onRetry={() => window.location.reload()} />;
     if (!localPlaylist) return null;
@@ -118,14 +142,17 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
 
                 {canEdit && (
                     <button 
-                        onClick={() => setIsEditing(!isEditing)}
+                        onClick={handleToggleEdit}
+                        disabled={isSaving}
                         className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
                             isEditing 
                             ? 'bg-white text-black hover:bg-white/90' 
                             : 'bg-white/10 text-white hover:bg-white/20'
-                        }`}
+                        } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                        {isEditing ? (
+                        {isSaving ? (
+                            <span className="text-xs">Saving...</span>
+                        ) : isEditing ? (
                             <>
                                 <Check className="w-4 h-4" />
                                 <span>Done</span>

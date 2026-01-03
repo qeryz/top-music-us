@@ -244,3 +244,19 @@ export const playTrack = async (deviceId: string, trackUri: string): Promise<voi
         }
     }
 };
+
+export const savePlaylist = async (playlistId: string, uris: string[]): Promise<void> => {
+    const response = await fetchWithAuth('/api/save-playlist', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            playlist_id: playlistId,
+            uris 
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to save playlist');
+    }
+};
