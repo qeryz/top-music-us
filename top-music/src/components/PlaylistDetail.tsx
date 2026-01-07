@@ -159,7 +159,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
                     <button 
                         onClick={handleToggleEdit}
                         disabled={isSaving}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
+                        className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
                             isEditing 
                             ? 'bg-white text-black hover:bg-white/90' 
                             : 'bg-white/10 text-white hover:bg-white/20'
