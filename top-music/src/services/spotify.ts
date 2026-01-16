@@ -43,11 +43,17 @@ const fetchWithAuth = async (url: string, options: RequestInit = {}): Promise<Re
                 // Retry the original request
                 response = await fetch(url, options);
             } else {
-                // Refresh failed, nothing else we can do
+                // Refresh failed, critical session expiry
                 console.error('Token refresh failed');
+                // Force logout and redirect
+                localStorage.removeItem('is_authenticated');
+                window.location.href = '/'; // Redirect to login
             }
         } catch (error) {
             console.error('Error during token refresh:', error);
+            // Critical error, safer to logout
+            localStorage.removeItem('is_authenticated');
+            window.location.href = '/';
         }
     }
 
