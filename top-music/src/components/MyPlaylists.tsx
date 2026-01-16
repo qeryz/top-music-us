@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getUserPlaylists, type SpotifyPlaylist, type SpotifyPlaylistDetail } from '../services/spotify';
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
+import { useAuth } from '../context/AuthContext'; // Import useAuth
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 import PlaylistGrid from './PlaylistGrid';
@@ -15,6 +16,8 @@ const MyPlaylists: React.FC<MyPlaylistsProps> = ({ onPlaylistSelect }) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
+    
+    const { login } = useAuth(); // Get login function
     
     // Initialize Spotify Player once at this level
     const { deviceId, player, error: sdkError } = useSpotifyPlayer();
@@ -58,10 +61,12 @@ const MyPlaylists: React.FC<MyPlaylistsProps> = ({ onPlaylistSelect }) => {
     }
 
     if (error) {
+        const isSessionError = error.includes('Session expired');
         return (
             <PlaylistError 
                 message={error} 
-                onRetry={fetchPlaylists} 
+                onRetry={isSessionError ? login : fetchPlaylists}
+                actionLabel={isSessionError ? 'Log In' : 'Try Again'}
             />
         );
     }
