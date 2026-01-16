@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Play, Pause, Pen, Check } from 'lucide-react';
-import type { SpotifyTrack, SpotifyPlaylistDetail } from '../services/spotify';
+import type { SpotifyTrack, SpotifyPlaylistDetail, SpotifyPlayer } from '../services/spotify';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 import PlaylistHeader from './PlaylistHeader';
@@ -16,7 +16,7 @@ interface PlaylistDetailProps {
     playlistId: string;
     onBack: () => void;
     deviceId: string | null;
-    player: any;
+    player: SpotifyPlayer | null;
     sdkError: string | null;
     onPlaylistLoaded?: (playlist: SpotifyPlaylistDetail) => void;
 }

@@ -145,7 +145,7 @@ export const getPlaylist = async (id: string): Promise<SpotifyPlaylistDetail> =>
  */
 export const getAccessToken = async (): Promise<string | null> => {
     try {
-        const response = await fetch('/api/token');
+        const response = await fetchWithAuth('/api/token');
         if (!response.ok) {
             console.error(`[getAccessToken] Failed to fetch token: ${response.status} ${response.statusText}`);
             return null;
@@ -265,3 +265,47 @@ export const savePlaylist = async (playlistId: string, uris: string[], snapshotI
 
     return await response.json();
 };
+
+// --- Web Playback SDK Types ---
+
+export interface SpotifyPlayerState {
+    context: {
+        uri: string | null;
+        metadata: any;
+    };
+    disallows: {
+        pausing: boolean;
+        peeking_next: boolean;
+        peeking_prev: boolean;
+        resuming: boolean;
+        seeking: boolean;
+        skipping_next: boolean;
+        skipping_prev: boolean;
+    };
+    duration: number;
+    paused: boolean;
+    position: number;
+    repeat_mode: number;
+    shuffle: boolean;
+    track_window: {
+        current_track: SpotifyTrack;
+        next_tracks: SpotifyTrack[];
+        previous_tracks: SpotifyTrack[];
+    };
+}
+
+export interface SpotifyPlayer {
+    connect: () => Promise<boolean>;
+    disconnect: () => void;
+    addListener: (eventName: string, callback: (data: any) => void) => boolean;
+    removeListener: (eventName: string, callback?: (data: any) => void) => boolean;
+    getCurrentState: () => Promise<SpotifyPlayerState | null>;
+    setVolume: (volume: number) => Promise<void>;
+    pause: () => Promise<void>;
+    resume: () => Promise<void>;
+    togglePlay: () => Promise<void>;
+    seek: (position_ms: number) => Promise<void>;
+    previousTrack: () => Promise<void>;
+    nextTrack: () => Promise<void>;
+    activateElement: () => Promise<void>;
+}

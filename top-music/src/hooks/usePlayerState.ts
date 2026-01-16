@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
+import type { SpotifyPlayer, SpotifyPlayerState } from '../services/spotify';
 
-export const usePlayerState = (player: any) => {
+export const usePlayerState = (player: SpotifyPlayer | null) => {
     const [playingTrackId, setPlayingTrackId] = useState<string | null>(null);
     const [isPaused, setIsPaused] = useState<boolean>(true);
 
     useEffect(() => {
         if (!player) return;
 
-        const stateListener = (state: any) => {
+        const stateListener = (state: SpotifyPlayerState) => {
             if (!state) {
                 setPlayingTrackId(null);
                 return;

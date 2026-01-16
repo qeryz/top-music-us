@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getAccessToken } from '../services/spotify';
+import { getAccessToken, type SpotifyPlayer } from '../services/spotify';
 import { useAuth } from './AuthContext';
 
 declare global {
@@ -10,7 +10,7 @@ declare global {
 }
 
 interface SpotifyPlayerContextType {
-    player: any;
+    player: SpotifyPlayer | null;
     deviceId: string | null;
     isReady: boolean;
     error: string | null;
@@ -19,7 +19,7 @@ interface SpotifyPlayerContextType {
 const SpotifyPlayerContext = createContext<SpotifyPlayerContextType | null>(null);
 
 export const SpotifyPlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [player, setPlayer] = useState<any>(null);
+    const [player, setPlayer] = useState<SpotifyPlayer | null>(null);
     const [deviceId, setDeviceId] = useState<string | null>(null);
     const [isReady, setIsReady] = useState(false);
     const [error, setError] = useState<string | null>(null);
