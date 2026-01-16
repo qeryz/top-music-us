@@ -100,6 +100,7 @@ export interface SpotifyTrack {
 export interface SpotifyPlaylistTrack {
     added_at: string;
     track: SpotifyTrack;
+    localId?: string; // Frontend-only unique ID for Drag & Drop
 }
 
 export interface SpotifyUser {

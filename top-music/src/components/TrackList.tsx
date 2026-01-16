@@ -37,8 +37,8 @@ const TrackList: React.FC<TrackListProps> = ({
         const { active, over } = event;
         
         if (active.id !== over?.id) {
-            const oldIndex = playlist.tracks.items.findIndex((item) => item.track?.id === active.id);
-            const newIndex = playlist.tracks.items.findIndex((item) => item.track?.id === over?.id);
+            const oldIndex = playlist.tracks.items.findIndex((item) => item.localId === active.id);
+            const newIndex = playlist.tracks.items.findIndex((item) => item.localId === over?.id);
             
             // Create new array with reordered items
             const newItems = [...playlist.tracks.items];
@@ -63,18 +63,19 @@ const TrackList: React.FC<TrackListProps> = ({
                 onDragEnd={handleDragEnd}
             >
                 <SortableContext 
-                    items={playlist.tracks.items.map(item => item.track?.id || '')} 
+                    items={playlist.tracks.items.map(item => item.localId || item.track.id)} 
                     strategy={verticalListSortingStrategy}
                 >
                     <div className="flex flex-col">
                         {playlist.tracks.items.map((item, index) => {
                             if (!item.track) return null;
                             const isCurrentPlaying = playingTrackId === item.track.id;
+                            const uniqueId = item.localId || item.track.id;
                             
                             return (
                                 <SortableTrackItem
-                                    key={item.track.id}
-                                    id={item.track.id}
+                                    key={uniqueId}
+                                    id={uniqueId}
                                     track={item.track}
                                     index={index}
                                     isCurrentPlaying={isCurrentPlaying}

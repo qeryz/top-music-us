@@ -41,7 +41,19 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
     // Sync local playlist state when data fetch is complete
     useEffect(() => {
         if (initialPlaylist) {
-            setLocalPlaylist(initialPlaylist);
+            // Assign unique local IDs to each track item to handle duplicates
+            const tracksWithIds = {
+                ...initialPlaylist.tracks,
+                items: initialPlaylist.tracks.items.map(item => ({
+                    ...item,
+                    localId: crypto.randomUUID()
+                }))
+            };
+            
+            setLocalPlaylist({
+                ...initialPlaylist,
+                tracks: tracksWithIds
+            });
         }
     }, [initialPlaylist]);
 
@@ -73,14 +85,16 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
         const newTrackItem = {
             added_at: new Date().toISOString(),
             is_local: false,
-            track: track
+            track: track,
+            localId: crypto.randomUUID() // Generate unique ID for new track
         };
 
         setLocalPlaylist({
             ...localPlaylist,
             tracks: {
                 ...localPlaylist.tracks,
-                items: [newTrackItem, ...localPlaylist.tracks.items]
+                items: [newTrackItem, ...localPlaylist.tracks.items],
+                total: localPlaylist.tracks.total + 1
             }
         });
     };
