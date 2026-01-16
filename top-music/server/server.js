@@ -38,8 +38,10 @@ app.use((req, res, next) => {
   next();
 });
 
+const client_origin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'], // Frontend URLs
+    origin: [client_origin, 'http://127.0.0.1:5173'], // Keep 127.0.0.1 for fallback
     credentials: true // Allow cookies
 }));
 app.use(cookieParser());
