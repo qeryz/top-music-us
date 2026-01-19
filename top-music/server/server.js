@@ -29,7 +29,7 @@ log('Server starting...');
 const client_id = process.env.SPOTIFY_CLIENT_ID;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET;
 // Reverted to http://127.0.0.1:5000/callback per user requirement
-const redirect_uri = 'http://127.0.0.1:5000/callback';
+const redirect_uri = process.env.SPOTIFY_REDIRECT_URI || 'http://127.0.0.1:5000/callback';
 const google_maps_api_key = process.env.GOOGLE_MAPS_API_KEY;
 
 // Middleware
@@ -434,10 +434,21 @@ app.post('/api/create-playlist', async (req, res) => {
 });
 
 
-app.get('/', (req, res) => {
-  res.send('Road Trip Playlist Server Running');
-});
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '../dist');
+  app.use(express.static(distPath));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+} else {
+  app.get('/', (req, res) => {
+    res.send('Road Trip Playlist Server Running (Dev Mode)');
+  });
+}
 
 app.listen(port, () => {
   console.log(`Server is running on http://127.0.0.1:${port}`);
+  console.log(`Redirect URI: ${redirect_uri}`);
 });
