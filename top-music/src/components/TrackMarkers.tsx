@@ -11,6 +11,9 @@ interface TrackMarkersProps {
 const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => {
   const [selectedTrack, setSelectedTrack] = useState<TrackPosition | null>(null);
 
+  // Set opacity based on zoom level
+  const markerOpacity = zoom < 9 ? 0.6 : 1.0;
+
   // Smart Decimation Logic
   // Show fewer markers when zoomed out to prevent clutter
   const visibleTracks = React.useMemo(() => {
@@ -57,6 +60,7 @@ const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => 
               scaledSize: new google.maps.Size(40, 40),
               anchor: new google.maps.Point(20, 20),
             }}
+            opacity={markerOpacity}
             onClick={() => setSelectedTrack(trackPos)}
             zIndex={1000 + index}
           />
