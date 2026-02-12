@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Marker, InfoWindow } from '@react-google-maps/api';
+import { Marker, InfoWindow, useGoogleMap } from '@react-google-maps/api';
 import type { TrackPosition } from '../utils/routeUtils';
 import { formatPlaybackTime } from '../utils/formatters';
 
@@ -9,47 +9,75 @@ interface TrackMarkersProps {
 }
 
 const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => {
+  const map = useGoogleMap();
   const [selectedTrack, setSelectedTrack] = useState<TrackPosition | null>(null);
 
-  // Set opacity based on zoom level
-  const markerOpacity = zoom < 9 ? 0.6 : 1.0;
-
-  // Smart Decimation Logic
-  // Show fewer markers when zoomed out to prevent clutter
-  const visibleTracks = React.useMemo(() => {
-    if (zoom >= 10) return trackPositions; // Show all at high zoom
-
+  // Clustering Logic
+  // Group tracks that are temporally close based on zoom level
+  const clusters = React.useMemo(() => {
+    if (trackPositions.length === 0) return [];
+    
+    // Low zoom = larger time grouping
     let intervalMs = 0;
     if (zoom < 5) {
       intervalMs = 60 * 60 * 1000; // 60 mins
     } else if (zoom < 8) {
       intervalMs = 15 * 60 * 1000; // 15 mins
-    } else {
+    } else if (zoom < 12) { // Adjusted thresholds for better clustering feel
       intervalMs = 5 * 60 * 1000; // 5 mins
+    } else {
+        return trackPositions.map(t => ({ head: t, items: [t] })); // No clustering at high zoom
     }
 
-    const filtered: TrackPosition[] = [];
-    let lastIncludedTime = -intervalMs; // Ensure first track is included
+    const result: { head: TrackPosition; items: TrackPosition[] }[] = [];
+    
+    // Always start with the first track
+    let currentCluster = { head: trackPositions[0], items: [trackPositions[0]] };
+    result.push(currentCluster);
+    
+    let lastHeadTime = trackPositions[0].cumulativeTimeMs;
 
-    trackPositions.forEach((pos) => {
-      // Always include the very first and very last track
-      const isFirst = pos === trackPositions[0];
-      const isLast = pos === trackPositions[trackPositions.length - 1];
+    for (let i = 1; i < trackPositions.length; i++) {
+        const pos = trackPositions[i];
+        const isLast = i === trackPositions.length - 1;
+        
+        // If we are far enough from the last visible marker (cluster head), start a new cluster
+        // Or if it's the very last track (always show destination/end track)
+        if (isLast || (pos.cumulativeTimeMs - lastHeadTime >= intervalMs)) {
+            const newCluster = { head: pos, items: [pos] };
+            result.push(newCluster);
+            currentCluster = newCluster;
+            lastHeadTime = pos.cumulativeTimeMs;
+        } else {
+            // "Stack" into the current cluster
+            currentCluster.items.push(pos);
+        }
+    }
 
-      if (isFirst || isLast || (pos.cumulativeTimeMs - lastIncludedTime >= intervalMs)) {
-        filtered.push(pos);
-        lastIncludedTime = pos.cumulativeTimeMs;
-      }
-    });
-
-    return filtered;
+    return result;
   }, [trackPositions, zoom]);
+
+  const handleMarkerClick = (cluster: { head: TrackPosition; items: TrackPosition[] }) => {
+      // If it's a stack/cluster, zoom to fit
+      if (cluster.items.length > 1 && map) {
+          const bounds = new google.maps.LatLngBounds();
+          cluster.items.forEach(item => {
+              if (item.position) bounds.extend(item.position);
+          });
+          map.fitBounds(bounds);
+      } else {
+          // It's a single track, show info
+          setSelectedTrack(cluster.head);
+      }
+  };
 
   return (
     <>
       {/* Track Markers */}
-      {visibleTracks.map((trackPos, index) => {
+      {clusters.map((cluster, index) => {
+        const trackPos = cluster.head;
         const albumImage = trackPos.track.album.images[0]?.url;
+        const count = cluster.items.length;
         
         return (
           <Marker
@@ -60,9 +88,15 @@ const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => 
               scaledSize: new google.maps.Size(40, 40),
               anchor: new google.maps.Point(20, 20),
             }}
-            opacity={markerOpacity}
-            onClick={() => setSelectedTrack(trackPos)}
-            zIndex={1000 + index}
+            label={count > 1 ? {
+                text: count.toString(),
+                color: "white",
+                fontSize: "10px",
+                fontWeight: "bold",
+                className: "map-marker-label" // We can style this if needed, but standard prop works
+            } : undefined}
+            onClick={() => handleMarkerClick(cluster)}
+            zIndex={1000 + index} // Ensure later tracks overlap earlier ones naturally
           />
         );
       })}
