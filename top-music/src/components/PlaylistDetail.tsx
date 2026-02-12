@@ -152,7 +152,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
             />
 
             {/* Actions Bar */}
-            <div className="px-6 py-4 flex items-center justify-between gap-4">
+            <div className="px-4 md:px-6 py-4 flex items-center justify-between gap-4">
                 <button 
                     onClick={() => {
                         if (isPaused) {

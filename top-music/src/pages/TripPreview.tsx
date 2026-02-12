@@ -58,7 +58,7 @@ const TripPreview: React.FC = () => {
     <div className="flex flex-col min-h-screen bg-[#05110a] font-display">
       
       {/* --- TOP HALF: MAP AREA --- */}
-      <div className="relative w-[80vw] h-[70vh] mx-auto mt-24 mb-8 rounded-[40px] overflow-hidden shadow-2xl z-10">
+      <div className="relative w-full md:w-[80vw] h-[60vh] md:h-[70vh] mx-auto mt-4 md:mt-24 mb-4 md:mb-8 rounded-none md:rounded-[40px] overflow-hidden shadow-2xl z-10">
             
             {/* Google Map */}
             {isLoaded ? (
