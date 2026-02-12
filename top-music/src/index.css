@@ -43,3 +43,13 @@ body {
 .animate-fade-in-up {
   animation: fade-in-up 0.8s ease-out forwards;
 }
+
+.gm-style-iw {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* Google Maps InfoWindow Overrides */
+.gm-style-iw-chr {
+    height: 25px !important;
+}
