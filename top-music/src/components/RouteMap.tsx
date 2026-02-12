@@ -29,7 +29,8 @@ const mapOptions = {
   fullscreenControl: false,
   gestureHandling: 'greedy',
   mapId: "2d38b57f5cf31bb91d4dacb2",
-  colorScheme: "DARK"
+  colorScheme: "DARK",
+  clickableIcons: false
 };
 
 const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks, playlistDurationMs, playlistId }) => {
