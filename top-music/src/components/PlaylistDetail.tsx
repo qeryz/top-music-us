@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Play, Pause, Pen, Check } from 'lucide-react';
+import { Play, Pause, Pen, Check, Clock } from 'lucide-react';
 import type { SpotifyTrack, SpotifyPlaylistDetail, SpotifyPlayer } from '../services/spotify';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
@@ -145,60 +145,71 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
 
     return (
         <div className="flex flex-col h-full animate-in fade-in duration-300">
-            <PlaylistHeader 
-                playlist={localPlaylist} 
-                onBack={onBack} 
-                deviceId={deviceId} 
-            />
+            <div className="sticky top-0 z-30 bg-[#05110a] shadow-md border-b border-white/5">
+                <PlaylistHeader 
+                    playlist={localPlaylist} 
+                    onBack={onBack} 
+                    deviceId={deviceId} 
+                />
 
-            {/* Actions Bar */}
-            <div className="px-4 md:px-6 py-4 flex items-center justify-between gap-4">
-                <button 
-                    onClick={() => {
-                        if (isPaused) {
-                            player?.resume();
-                        } else {
-                            player?.pause();
-                        }
-                        if (!playingTrackId && localPlaylist.tracks.items[0]?.track) {
-                            handlePlay(localPlaylist.tracks.items[0].track);
-                        }
-                    }}
-                    className="w-14 h-14 rounded-full bg-[#1DB954] hover:scale-105 active:scale-95 flex items-center justify-center text-black transition-all shadow-lg cursor-pointer"
-                >
-                    {!isPaused ? <Pause className="w-7 h-7 fill-black" /> : <Play className="w-7 h-7 fill-black translate-x-0.5" />}
-                </button>
-
-                {canEdit && (
+                {/* Actions Bar */}
+                <div className="px-4 md:px-6 py-4 flex items-center justify-between gap-4">
                     <button 
-                        onClick={handleToggleEdit}
-                        disabled={isSaving}
-                        className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
-                            isEditing 
-                            ? 'bg-white text-black hover:bg-white/90' 
-                            : 'bg-white/10 text-white hover:bg-white/20'
-                        } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        onClick={() => {
+                            if (isPaused) {
+                                player?.resume();
+                            } else {
+                                player?.pause();
+                            }
+                            if (!playingTrackId && localPlaylist.tracks.items[0]?.track) {
+                                handlePlay(localPlaylist.tracks.items[0].track);
+                            }
+                        }}
+                        className="w-14 h-14 rounded-full bg-[#1DB954] hover:scale-105 active:scale-95 flex items-center justify-center text-black transition-all shadow-lg cursor-pointer"
                     >
-                        {isSaving ? (
-                            <span className="text-xs">Saving...</span>
-                        ) : isEditing ? (
-                            <>
-                                <Check className="w-4 h-4" />
-                                <span>Done</span>
-                            </>
-                        ) : (
-                            <>
-                                <Pen className="w-4 h-4" />
-                                <span>Edit Playlist</span>
-                            </>
-                        )}
+                        {!isPaused ? <Pause className="w-7 h-7 fill-black" /> : <Play className="w-7 h-7 fill-black translate-x-0.5" />}
                     </button>
-                )}
-            </div>
 
-            {isEditing && (
-                <TrackSearch onAddTrack={handleAddTrack} />
-            )}
+                    {canEdit && (
+                        <button 
+                            onClick={handleToggleEdit}
+                            disabled={isSaving}
+                            className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
+                                isEditing 
+                                ? 'bg-white text-black hover:bg-white/90' 
+                                : 'bg-white/10 text-white hover:bg-white/20'
+                            } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                            {isSaving ? (
+                                <span className="text-xs">Saving...</span>
+                            ) : isEditing ? (
+                                <>
+                                    <Check className="w-4 h-4" />
+                                    <span>Done</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Pen className="w-4 h-4" />
+                                    <span>Edit Playlist</span>
+                                </>
+                            )}
+                        </button>
+                    )}
+                </div>
+
+                {isEditing && (
+                    <TrackSearch onAddTrack={handleAddTrack} />
+                )}
+
+                {/* Track List Header - Sticky */}
+                <div className="px-6 pb-2">
+                    <div className="grid grid-cols-[auto_1fr_auto] gap-4 px-4 py-2 text-white/50 text-sm uppercase tracking-wider">
+                        <span className="w-8 text-center">#</span>
+                        <span>Title</span>
+                        <Clock className="w-4 h-4 ml-auto" />
+                    </div>
+                </div>
+            </div>
 
             <TrackList 
                 playlist={localPlaylist}
