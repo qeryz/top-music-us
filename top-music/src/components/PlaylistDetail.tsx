@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Play, Pause, Pen, Check, Clock } from 'lucide-react';
+import { Play, Pause, Pen, Check, Clock, X } from 'lucide-react';
 import type { SpotifyTrack, SpotifyPlaylistDetail, SpotifyPlayer } from '../services/spotify';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
@@ -171,29 +171,58 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
                     </button>
 
                     {canEdit && (
-                        <button 
-                            onClick={handleToggleEdit}
-                            disabled={isSaving}
-                            className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
-                                isEditing 
-                                ? 'bg-white text-black hover:bg-white/90' 
-                                : 'bg-white/10 text-white hover:bg-white/20'
-                            } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        >
-                            {isSaving ? (
-                                <span className="text-xs">Saving...</span>
-                            ) : isEditing ? (
-                                <>
-                                    <Check className="w-4 h-4" />
-                                    <span>Done</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Pen className="w-4 h-4" />
-                                    <span>Edit Playlist</span>
-                                </>
+                        <div className="flex gap-2">
+                             {isEditing && (
+                                <button 
+                                    onClick={() => {
+                                        if (initialPlaylist) {
+                                            // Re-initialize local playlist from initial prop to discard changes
+                                            const tracksWithIds = {
+                                                ...initialPlaylist.tracks,
+                                                items: initialPlaylist.tracks.items.map(item => ({
+                                                    ...item,
+                                                    localId: crypto.randomUUID()
+                                                }))
+                                            };
+                                            setLocalPlaylist({
+                                                ...initialPlaylist,
+                                                tracks: tracksWithIds
+                                            });
+                                        }
+                                        setIsEditing(false);
+                                    }}
+                                    disabled={isSaving}
+                                    className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-full font-medium bg-white/10 text-white hover:bg-gray-500/20 hover:text-gray-400 transition-all border border-transparent hover:border-black-500"
+                                >
+                                    <X className="w-4 h-4" />
+                                    <span>Cancel</span>
+                                </button>
                             )}
-                        </button>
+                            
+                            <button 
+                                onClick={handleToggleEdit}
+                                disabled={isSaving}
+                                className={`cursor-pointer flex items-center gap-2 px-4 py-2 rounded-full font-medium transition-all ${
+                                    isEditing 
+                                    ? 'bg-white text-black hover:bg-white/90' 
+                                    : 'bg-white/10 text-white hover:bg-white/20'
+                                } ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                                {isSaving ? (
+                                    <span className="text-xs">Saving...</span>
+                                ) : isEditing ? (
+                                    <>
+                                        <Check className="w-4 h-4" />
+                                        <span>Done</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Pen className="w-4 h-4" />
+                                        <span>Edit Playlist</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     )}
                 </div>
 
