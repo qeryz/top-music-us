@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Marker, InfoWindow, useGoogleMap } from '@react-google-maps/api';
+import { OverlayView, InfoWindow, useGoogleMap } from '@react-google-maps/api';
 import type { TrackPosition } from '../utils/routeUtils';
 import { formatPlaybackTime } from '../utils/formatters';
 
@@ -71,6 +71,11 @@ const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => 
       }
   };
 
+  const getPixelPositionOffset = (width: number, height: number) => ({
+    x: -(width / 2),
+    y: -(height / 2),
+  });
+
   return (
     <>
       {/* Track Markers */}
@@ -78,35 +83,57 @@ const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => 
         const trackPos = cluster.head;
         const albumImage = trackPos.track.album.images[0]?.url;
         const count = cluster.items.length;
+        const isStack = count > 1;
         
+        // Use OverlayView for custom CSS stacking effects
         return (
-          <Marker
+          <OverlayView
             key={`${trackPos.track.id}-${index}`}
             position={trackPos.position!}
-            icon={{
-              url: albumImage || 'https://via.placeholder.com/40',
-              scaledSize: new google.maps.Size(40, 40),
-              anchor: new google.maps.Point(20, 20),
-            }}
-            label={count > 1 ? {
-                text: count.toString(),
-                color: "white",
-                fontSize: "10px",
-                fontWeight: "bold",
-                className: "map-marker-label" // We can style this if needed, but standard prop works
-            } : undefined}
-            onClick={() => handleMarkerClick(cluster)}
-            zIndex={1000 + index} // Ensure later tracks overlap earlier ones naturally
-          />
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={getPixelPositionOffset}
+          >
+            <div 
+                className="marker-cluster-container"
+                onClick={(e) => {
+                    e.stopPropagation(); // Prevent map click
+                    handleMarkerClick(cluster);
+                }}
+                style={{ zIndex: 1000 + index }}
+            >
+                {/* Stack "Fake" Layers */}
+                {isStack && (
+                    <>
+                        <div className="marker-stack-layer marker-stack-2" />
+                        <div className="marker-stack-layer marker-stack-1" />
+                    </>
+                )}
+
+                {/* Main Image Card */}
+                <img 
+                    src={albumImage || 'https://via.placeholder.com/40'} 
+                    alt={trackPos.track.name}
+                    className="marker-card"
+                />
+
+                {/* Badge */}
+                {isStack && (
+                    <div className="marker-badge">
+                        {count}
+                    </div>
+                )}
+            </div>
+          </OverlayView>
         );
       })}
 
-      {/* InfoWindow for selected track */}
+      {/* InfoWindow as before */}
       {selectedTrack && selectedTrack.position && (
         <InfoWindow
           position={selectedTrack.position}
           onCloseClick={() => setSelectedTrack(null)}
         >
+          {/* Content remains same */}
           <div className="p-2 max-w-xs">
             <div className="flex items-start gap-3">
               {selectedTrack.track.album.images[0] && (
