@@ -104,7 +104,9 @@ const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => 
                 {/* Stack "Fake" Layers */}
                 {isStack && (
                     <>
-                        <div className="marker-stack-layer marker-stack-2" />
+                        {count > 3 && <div className="marker-stack-layer marker-stack-3" />}
+                        {count > 2 && <div className="marker-stack-layer marker-stack-2" />}
+                        {/* Always show stack-1 if isStack (count > 1) */}
                         <div className="marker-stack-layer marker-stack-1" />
                     </>
                 )}

@@ -98,19 +98,27 @@ body {
     width: 100%;
     height: 100%;
     border-radius: 4px;
-    background-color: #282828; /* Fallback color resembling a dark card */
+    background-color: #8c8c8c; /* Fallback color resembling a dark card */
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 2px 4px rgba(0,0,0,0.4);
 }
 
 .marker-stack-1 {
-    transform: rotate(-8deg) translateX(-2px);
+    transform: translate(3px, 3px) scale(0.95);
     z-index: 5;
+    filter: brightness(0.9);
 }
 
 .marker-stack-2 {
-    transform: rotate(8deg) translateX(2px);
-    z-index: 1;
+    transform: translate(6px, 6px) scale(0.90);
+    z-index: 4;
+    filter: brightness(0.75);
+}
+
+.marker-stack-3 {
+    transform: translate(9px, 9px) scale(0.85);
+    z-index: 3;
+    filter: brightness(0.60);
 }
 
 .marker-badge {
