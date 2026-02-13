@@ -3,6 +3,7 @@ import { GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
 import type { SpotifyTrack } from '../services/spotify';
 import CoverageRoute from './CoverageRoute';
 import TrackMarkers from './TrackMarkers';
+import MapControls from './MapControls';
 import { useRouteDirections } from '../hooks/map/useRouteDirections';
 import { useTrackPositions } from '../hooks/map/useTrackPositions';
 import { usePlaylistCoverage } from '../hooks/map/usePlaylistCoverage';
@@ -36,6 +37,7 @@ const mapOptions = {
 const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks, playlistDurationMs, playlistId }) => {
   const [mapKey, setMapKey] = useState(0);
   const [zoom, setZoom] = useState(10);
+  const [showTracks, setShowTracks] = useState(true);
   const mapRef = React.useRef<google.maps.Map | null>(null);
 
   const { directions, routeStats } = useRouteDirections(origin, destination);
@@ -68,45 +70,51 @@ const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCa
   }, []);
 
   return (
-    <GoogleMap
-      key={`map-${mapKey}`}
-      mapContainerStyle={containerStyle}
-      center={origin}
-      zoom={zoom}
-      options={mapOptions}
-      onLoad={onMapLoad}
-      onZoomChanged={onZoomChanged}
-    >
-      {/* Render route - either default or dual-color based on coverage */}
-      {directions && !coverageData && (
-        <DirectionsRenderer
-          directions={directions}
-          options={{
-            polylineOptions: {
-              strokeColor: "#35a4ffff",
-              strokeWeight: 6,
-              strokeOpacity: 0.7,
-            },
-            markerOptions: {
-              icon: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"
-            }
-          }}
-        />
-      )}
+    <div className="relative w-full h-full">
+      <GoogleMap
+        key={`map-${mapKey}`}
+        mapContainerStyle={containerStyle}
+        center={origin}
+        zoom={zoom}
+        options={mapOptions}
+        onLoad={onMapLoad}
+        onZoomChanged={onZoomChanged}
+      >
+        {/* Render route - either default or dual-color based on coverage */}
+        {directions && !coverageData && (
+          <DirectionsRenderer
+            directions={directions}
+            options={{
+              polylineOptions: {
+                strokeColor: "#35a4ffff",
+                strokeWeight: 6,
+                strokeOpacity: 0.7,
+              },
+              markerOptions: {
+                icon: "https://maps.google.com/mapfiles/ms/icons/orange-dot.png"
+              }
+            }}
+          />
+        )}
 
-      {/* Dual-color route when playlist coverage is calculated */}
-      {directions && coverageData && playlistId && (
-        <CoverageRoute 
-          directions={directions}
-          coverageData={coverageData}
-          playlistId={playlistId}
-        />
-      )}
+        {/* Dual-color route when playlist coverage is calculated */}
+        {directions && coverageData && playlistId && (
+          <CoverageRoute 
+            directions={directions}
+            coverageData={coverageData}
+            playlistId={playlistId}
+          />
+        )}
 
-      {/* Track Markers */}
-      <TrackMarkers trackPositions={trackPositions} zoom={zoom} />
+        {/* Track Markers */}
+        {showTracks && (
+            <TrackMarkers trackPositions={trackPositions} zoom={zoom} />
+        )}
 
-    </GoogleMap>
+      </GoogleMap>
+      
+      {playlistId && <MapControls showTracks={showTracks} onToggleTracks={setShowTracks} />}
+    </div>
   );
 };
 
