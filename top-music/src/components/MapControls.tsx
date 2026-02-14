@@ -12,7 +12,7 @@ const MapControls: React.FC<MapControlsProps> = ({ showTracks, onToggleTracks })
             <div className="text-white backdrop-blur-md rounded-2xl shadow-xl">
                  <button
                     onClick={() => onToggleTracks(!showTracks)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${
+                    className={`flex cursor-pointer items-center gap-2 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${
                         showTracks 
                         ? 'bg-primary/20 text-primary border border-primary/20' 
                         : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white border border-transparent'
