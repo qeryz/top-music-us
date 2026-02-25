@@ -92,6 +92,7 @@ const TripPreview: React.FC = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onPlaylistSelect={setSelectedPlaylist}
+        routeStats={routeStats}
       />
 
     </div>

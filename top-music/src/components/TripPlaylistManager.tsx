@@ -1,17 +1,20 @@
 import React from 'react';
 import MyPlaylists from './MyPlaylists';
+import CreatePlaylist from './CreatePlaylist';
 import type { SpotifyPlaylistDetail } from '../services/spotify';
 
 interface TripPlaylistManagerProps {
   activeTab: 'my-playlists' | 'create-new';
   setActiveTab: (tab: 'my-playlists' | 'create-new') => void;
   onPlaylistSelect: (playlist: SpotifyPlaylistDetail | null) => void;
+  routeStats: { distance: string; duration: string; durationSeconds: number } | null;
 }
 
 const TripPlaylistManager: React.FC<TripPlaylistManagerProps> = ({
   activeTab,
   setActiveTab,
-  onPlaylistSelect
+  onPlaylistSelect,
+  routeStats
 }) => {
   return (
     <div className="flex-1 px-8 py-12 max-w-7xl mx-auto w-full flex flex-col gap-8">
@@ -37,9 +40,10 @@ const TripPlaylistManager: React.FC<TripPlaylistManagerProps> = ({
            {activeTab === 'my-playlists' ? (
               <MyPlaylists onPlaylistSelect={onPlaylistSelect} />
            ) : (
-              <div className="flex items-center justify-center h-64 border-2 border-dashed border-white/10 rounded-2xl bg-white/5">
-                  <p className="text-white/40 font-medium">Create New Playlist UI Coming Soon</p>
-              </div>
+              <CreatePlaylist 
+                routeStats={routeStats} 
+                onPlaylistCreated={onPlaylistSelect} 
+              />
            )}
         </div>
 

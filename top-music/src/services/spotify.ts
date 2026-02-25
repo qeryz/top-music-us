@@ -272,6 +272,45 @@ export const savePlaylist = async (playlistId: string, uris: string[], snapshotI
     return await response.json();
 };
 
+/**
+ * Generates a list of tracks that fit a specified duration.
+ */
+export const generatePlaylist = async (durationSeconds: number, options: { existing_playlist_id?: string, seeds?: any } = {}): Promise<{ tracks: SpotifyTrack[], total_duration_ms: number, trip_duration_ms: number }> => {
+    const response = await fetchWithAuth('/api/generate-playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            duration_seconds: durationSeconds,
+            ...options
+        })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to generate playlist');
+    }
+
+    return await response.json();
+};
+
+/**
+ * Creates a new playlist on the user's Spotify account and adds tracks to it.
+ */
+export const createPlaylist = async (name: string, uris: string[]): Promise<{ success: boolean, playlist_id: string, external_url: string }> => {
+    const response = await fetchWithAuth('/api/create-playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, uris })
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to create playlist');
+    }
+
+    return await response.json();
+};
+
 // --- Web Playback SDK Types ---
 
 export interface SpotifyPlayerState {
