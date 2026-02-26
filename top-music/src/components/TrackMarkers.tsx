@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { OverlayView, InfoWindow, useGoogleMap } from '@react-google-maps/api';
-import type { TrackPosition } from '../utils/routeUtils';
+import type { TrackPosition } from '../types';
 import { formatPlaybackTime } from '../utils/formatters';
 
 interface TrackMarkersProps {

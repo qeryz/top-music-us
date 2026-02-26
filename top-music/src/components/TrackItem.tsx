@@ -1,6 +1,6 @@
 import React from 'react';
 import { Play, Pause } from 'lucide-react';
-import type { SpotifyTrack } from '../services/spotify';
+import type { SpotifyTrack } from '../types';
 import { formatDuration } from '../utils/formatters';
 
 interface TrackItemProps {

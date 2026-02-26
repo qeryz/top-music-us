@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ArrowLeft, Music, Loader } from 'lucide-react';
-import type { SpotifyPlaylistDetail } from '../services/spotify';
+import type { SpotifyPlaylistDetail } from '../types';
 import { formatPlaybackTime } from '../utils/formatters';
 
 interface PlaylistHeaderProps {

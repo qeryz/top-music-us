@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { SpotifyTrack, SpotifyPlaylistDetail, SpotifyPlayer } from '../services/spotify';
+import type { SpotifyTrack, SpotifyPlaylistDetail, SpotifyPlayer, SpotifyPlaylistTrack } from '../types';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 import PlaylistHeader from './PlaylistHeader';
@@ -45,7 +45,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
             // Assign unique local IDs to each track item to handle duplicates
             const tracksWithIds = {
                 ...initialPlaylist.tracks,
-                items: initialPlaylist.tracks.items.map(item => ({
+                items: initialPlaylist.tracks.items.map((item: SpotifyPlaylistTrack) => ({
                     ...item,
                     localId: crypto.randomUUID()
                 }))
@@ -130,7 +130,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
         if (initialPlaylist) {
             const tracksWithIds = {
                 ...initialPlaylist.tracks,
-                items: initialPlaylist.tracks.items.map(item => ({
+                items: initialPlaylist.tracks.items.map((item: SpotifyPlaylistTrack) => ({
                     ...item,
                     localId: crypto.randomUUID()
                 }))

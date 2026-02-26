@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { getPlaylist, type SpotifyPlaylistDetail } from '../services/spotify';
+import { getPlaylist } from '../services/spotify';
+import type { SpotifyPlaylistDetail } from '../types';
 
 export const usePlaylistData = (playlistId: string) => {
     const [playlist, setPlaylist] = useState<SpotifyPlaylistDetail | null>(null);

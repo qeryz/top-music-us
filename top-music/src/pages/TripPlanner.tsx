@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import mapLines from '../assets/map-lines.png';
 import { useJsApiLoader } from '@react-google-maps/api';
 import PlacesAutocomplete from '../components/PlacesAutocomplete';
+import type { TripLocation } from '../types';
 
 const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
 
@@ -12,8 +13,8 @@ const TripPlanner: React.FC = () => {
   const location = useLocation();
   const { initialOrigin, initialDestination } = location.state || {}; // Get initial state if editing
 
-  const [origin, setOrigin] = useState<{ address: string; lat: number; lng: number } | null>(initialOrigin || null);
-  const [destination, setDestination] = useState<{ address: string; lat: number; lng: number } | null>(initialDestination || null);
+  const [origin, setOrigin] = useState<TripLocation | null>(initialOrigin || null);
+  const [destination, setDestination] = useState<TripLocation | null>(initialDestination || null);
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',

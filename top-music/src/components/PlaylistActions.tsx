@@ -1,6 +1,6 @@
 import React from 'react';
 import { Play, Pause, Pen, Check, X } from 'lucide-react';
-import type { SpotifyTrack, SpotifyPlaylistDetail } from '../services/spotify';
+import type { SpotifyTrack, SpotifyPlaylistDetail, SpotifyPlayer } from '../types';
 
 interface PlaylistActionsProps {
   isPaused: boolean;
@@ -15,10 +15,6 @@ interface PlaylistActionsProps {
   onCancel: () => void;
   onSave: () => void;
 }
-
-// Re-declare SpotifyPlayer if needed, or import it. Using 'any' for player to simplify prop drilling if type isn't exported perfectly, but ideally import.
-// Assuming imports exist in parent.
-import type { SpotifyPlayer } from '../services/spotify';
 
 const PlaylistActions: React.FC<PlaylistActionsProps> = ({
   isPaused,

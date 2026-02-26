@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus } from 'lucide-react';
-import { getAccessToken, type SpotifyTrack } from '../services/spotify';
+import { getAccessToken } from '../services/spotify';
+import type { SpotifyTrack } from '../types';
 
 interface TrackSearchProps {
     onAddTrack: (track: SpotifyTrack) => void;

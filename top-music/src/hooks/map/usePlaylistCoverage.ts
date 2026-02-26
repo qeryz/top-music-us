@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { SpotifyTrack } from '../../services/spotify';
+import type { SpotifyTrack, CoverageData } from '../../types';
 import { calculateCoveragePercentage, decodePolyline, splitPolylineAtPercentage } from '../../utils/routeUtils';
-
-interface CoverageData {
-  coveredPath: google.maps.LatLng[];
-  uncoveredPath: google.maps.LatLng[];
-  coveragePercentage: number;
-  endPoint: google.maps.LatLng | null;
-  gapMinutes: number;
-}
 
 export const usePlaylistCoverage = (
   directions: google.maps.DirectionsResult | null,

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getAccessToken, type SpotifyPlayer } from '../services/spotify';
+import { getAccessToken } from '../services/spotify';
 import { useAuth } from './AuthContext';
+import type { SpotifyPlayer } from '../types';
 
 declare global {
     interface Window {

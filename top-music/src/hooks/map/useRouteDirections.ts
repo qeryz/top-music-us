@@ -1,10 +1,5 @@
 import { useState, useEffect } from 'react';
-
-interface RouteStats {
-  distance: string;
-  duration: string;
-  durationSeconds: number;
-}
+import type { RouteStats } from '../../types';
 
 export const useRouteDirections = (
   origin: { lat: number; lng: number } | null,

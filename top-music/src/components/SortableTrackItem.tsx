@@ -3,7 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
 import TrackItem from './TrackItem';
-import type { SpotifyTrack } from '../services/spotify';
+import type { SpotifyTrack } from '../types';
 
 interface SortableTrackItemProps {
   id: string;

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getUserPlaylists, type SpotifyPlaylist, type SpotifyPlaylistDetail } from '../services/spotify';
+import { getUserPlaylists } from '../services/spotify';
+import type { SpotifyPlaylist, SpotifyPlaylistDetail } from '../types';
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
 import { useAuth } from '../context/AuthContext'; // Import useAuth
 import PlaylistLoading from './PlaylistLoading';

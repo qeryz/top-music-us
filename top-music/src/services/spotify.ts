@@ -1,33 +1,13 @@
-export interface SpotifyImage {
-    url: string;
-    height: number;
-    width: number;
-}
+import type { 
+    SpotifyPlaylist, 
+    PlaylistResponse, 
+    SpotifyPlaylistDetail, 
+    SpotifyUser, 
+    SavePlaylistResponse,
+    GeneratePlaylistResponse,
+    CreatePlaylistResponse
+} from '../types';
 
-export interface SpotifyPlaylist {
-    id: string;
-    name: string;
-    images: SpotifyImage[];
-    borderWidth?: number;
-    tracks: {
-        href: string;
-        total: number;
-    };
-    external_urls: {
-        spotify: string;
-    };
-    collaborative: boolean;
-}
-
-export interface PlaylistResponse {
-    href: string;
-    items: SpotifyPlaylist[];
-    limit: number;
-    next: string | null;
-    offset: number;
-    previous: string | null;
-    total: number;
-}
 
 /**
  * Helper to perform fetch with automatic token refresh on 401.
@@ -82,53 +62,6 @@ export const getUserPlaylists = async (): Promise<SpotifyPlaylist[]> => {
 
 
 
-export interface SpotifyArtist {
-    id: string;
-    name: string;
-}
-
-export interface SpotifyAlbum {
-    id: string;
-    name: string;
-    images: SpotifyImage[];
-}
-
-export interface SpotifyTrack {
-    id: string;
-    name: string;
-    artists: SpotifyArtist[];
-    album: SpotifyAlbum;
-    duration_ms: number;
-    preview_url: string | null;
-    uri: string;
-}
-
-export interface SpotifyPlaylistTrack {
-    added_at: string;
-    track: SpotifyTrack;
-    localId?: string; // Frontend-only unique ID for Drag & Drop
-}
-
-export interface SpotifyUser {
-    id: string;
-    display_name: string;
-    email?: string;
-    images?: SpotifyImage[];
-}
-
-export interface SpotifyPlaylistDetail extends SpotifyPlaylist {
-    description: string;
-    snapshot_id: string; // Added for version control
-    owner: {
-        id: string;
-        display_name: string;
-    };
-    tracks: {
-        href: string;
-        total: number;
-        items: SpotifyPlaylistTrack[];
-    };
-}
 
 /**
  * Fetches full details for a specific playlist.
@@ -253,7 +186,7 @@ export const playTrack = async (deviceId: string, trackUri: string): Promise<voi
     }
 };
 
-export const savePlaylist = async (playlistId: string, uris: string[], snapshotId?: string): Promise<any> => {
+export const savePlaylist = async (playlistId: string, uris: string[], snapshotId?: string): Promise<SavePlaylistResponse> => {
     const response = await fetchWithAuth('/api/save-playlist', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -275,7 +208,7 @@ export const savePlaylist = async (playlistId: string, uris: string[], snapshotI
 /**
  * Generates a list of tracks that fit a specified duration.
  */
-export const generatePlaylist = async (durationSeconds: number, options: { existing_playlist_id?: string, seeds?: any } = {}): Promise<{ tracks: SpotifyTrack[], total_duration_ms: number, trip_duration_ms: number }> => {
+export const generatePlaylist = async (durationSeconds: number, options: { existing_playlist_id?: string, seeds?: any } = {}): Promise<GeneratePlaylistResponse> => {
     const response = await fetchWithAuth('/api/generate-playlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -296,7 +229,7 @@ export const generatePlaylist = async (durationSeconds: number, options: { exist
 /**
  * Creates a new playlist on the user's Spotify account and adds tracks to it.
  */
-export const createPlaylist = async (name: string, uris: string[]): Promise<{ success: boolean, playlist_id: string, external_url: string }> => {
+export const createPlaylist = async (name: string, uris: string[]): Promise<CreatePlaylistResponse> => {
     const response = await fetchWithAuth('/api/create-playlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -311,46 +244,3 @@ export const createPlaylist = async (name: string, uris: string[]): Promise<{ su
     return await response.json();
 };
 
-// --- Web Playback SDK Types ---
-
-export interface SpotifyPlayerState {
-    context: {
-        uri: string | null;
-        metadata: any;
-    };
-    disallows: {
-        pausing: boolean;
-        peeking_next: boolean;
-        peeking_prev: boolean;
-        resuming: boolean;
-        seeking: boolean;
-        skipping_next: boolean;
-        skipping_prev: boolean;
-    };
-    duration: number;
-    paused: boolean;
-    position: number;
-    repeat_mode: number;
-    shuffle: boolean;
-    track_window: {
-        current_track: SpotifyTrack;
-        next_tracks: SpotifyTrack[];
-        previous_tracks: SpotifyTrack[];
-    };
-}
-
-export interface SpotifyPlayer {
-    connect: () => Promise<boolean>;
-    disconnect: () => void;
-    addListener: (eventName: string, callback: (data: any) => void) => boolean;
-    removeListener: (eventName: string, callback?: (data: any) => void) => boolean;
-    getCurrentState: () => Promise<SpotifyPlayerState | null>;
-    setVolume: (volume: number) => Promise<void>;
-    pause: () => Promise<void>;
-    resume: () => Promise<void>;
-    togglePlay: () => Promise<void>;
-    seek: (position_ms: number) => Promise<void>;
-    previousTrack: () => Promise<void>;
-    nextTrack: () => Promise<void>;
-    activateElement: () => Promise<void>;
-}

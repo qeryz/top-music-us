@@ -5,12 +5,13 @@ import usePlacesAutocomplete, {
   getLatLng,
 } from 'use-places-autocomplete';
 import { MapPin, Flag } from 'lucide-react';
+import type { TripLocation } from '../types';
 
 interface PlacesAutocompleteProps {
   label: string;
   placeholder?: string;
   icon: 'map-pin' | 'flag';
-  onLocationSelect: (location: { address: string; lat: number; lng: number }) => void;
+  onLocationSelect: (location: TripLocation) => void;
   onClear?: () => void;
   defaultValue?: string;
 }

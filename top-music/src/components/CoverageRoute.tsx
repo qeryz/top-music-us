@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import { DirectionsRenderer, Polyline, Marker, InfoWindow } from '@react-google-maps/api';
-
-interface CoverageData {
-  coveredPath: google.maps.LatLng[];
-  uncoveredPath: google.maps.LatLng[];
-  coveragePercentage: number;
-  endPoint: google.maps.LatLng | null;
-  gapMinutes: number;
-}
+import type { CoverageData } from '../types';
 
 interface CoverageRouteProps {
   directions: google.maps.DirectionsResult;

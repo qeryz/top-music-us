@@ -1,7 +1,7 @@
 import React from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import type { SpotifyPlaylistDetail, SpotifyTrack } from '../services/spotify';
+import type { SpotifyPlaylistDetail, SpotifyTrack } from '../types';
 import SortableTrackItem from './SortableTrackItem';
 
 interface TrackListProps {

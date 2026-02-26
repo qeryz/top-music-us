@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { GoogleMap, DirectionsRenderer } from '@react-google-maps/api';
-import type { SpotifyTrack } from '../services/spotify';
+import type { SpotifyTrack, RouteStats } from '../types';
 import CoverageRoute from './CoverageRoute';
 import TrackMarkers from './TrackMarkers';
 import MapControls from './MapControls';
@@ -9,9 +9,9 @@ import { useTrackPositions } from '../hooks/map/useTrackPositions';
 import { usePlaylistCoverage } from '../hooks/map/usePlaylistCoverage';
 
 interface RouteMapProps {
-  origin: { lat: number; lng: number };
-  destination: { lat: number; lng: number };
-  onRouteStatsCalculated: (stats: { distance: string; duration: string; durationSeconds: number }) => void;
+  origin: google.maps.LatLngLiteral;
+  destination: google.maps.LatLngLiteral;
+  onRouteStatsCalculated: (stats: RouteStats) => void;
   tracks?: SpotifyTrack[];
   playlistDurationMs?: number; // Total duration of the playlist in milliseconds
   playlistId?: string; // Unique playlist identifier to force re-render on playlist change

@@ -1,9 +1,10 @@
-import { playTrack, type SpotifyTrack } from '../services/spotify';
+import { playTrack } from '../services/spotify';
+import type { SpotifyTrack, SpotifyPlayer } from '../types';
 
 interface PlaybackControlsParams {
     deviceId: string | null;
     sdkError: string | null;
-    player: any;
+    player: SpotifyPlayer | null;
     playingTrackId: string | null;
     isPaused: boolean;
 }

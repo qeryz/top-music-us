@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useJsApiLoader } from '@react-google-maps/api';
 import RouteMap from '../components/RouteMap';
-import type { SpotifyPlaylistDetail } from '../services/spotify';
+import type { SpotifyPlaylistDetail, RouteStats } from '../types';
 import { calculatePlaylistDuration } from '../utils/routeUtils';
 import TripStatsCard from '../components/TripStatsCard';
 import TripPlaylistManager from '../components/TripPlaylistManager';
@@ -17,7 +17,7 @@ const TripPreview: React.FC = () => {
   const origin = state?.origin;
   const destination = state?.destination;
 
-  const [routeStats, setRouteStats] = useState<{ distance: string; duration: string; durationSeconds: number } | null>(null);
+  const [routeStats, setRouteStats] = useState<RouteStats | null>(null);
   const [activeTab, setActiveTab] = useState<'my-playlists' | 'create-new'>('my-playlists');
   const [selectedPlaylist, setSelectedPlaylist] = useState<SpotifyPlaylistDetail | null>(null);
 

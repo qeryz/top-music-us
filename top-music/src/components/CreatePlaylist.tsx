@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Music, Play, Plus, Save, Loader2, RefreshCw } from 'lucide-react';
-import { generatePlaylist, createPlaylist, getPlaylist, type SpotifyTrack, type SpotifyPlaylistDetail } from '../services/spotify';
+import { generatePlaylist, createPlaylist, getPlaylist } from '../services/spotify';
+import type { SpotifyTrack, SpotifyPlaylistDetail, RouteStats, TripLocation } from '../types';
 import { formatPlaybackTime } from '../utils/formatters';
 
 interface CreatePlaylistProps {
-    routeStats: { distance: string; duration: string; durationSeconds: number } | null;
-    origin: { address: string };
-    destination: { address: string };
+    routeStats: RouteStats | null;
+    origin: TripLocation;
+    destination: TripLocation;
     onPlaylistCreated: (playlist: SpotifyPlaylistDetail) => void;
 }
 

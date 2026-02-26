@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Music, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatPlaybackTime } from '../utils/formatters';
-import type { SpotifyPlaylistDetail } from '../services/spotify';
+import type { SpotifyPlaylistDetail, RouteStats } from '../types';
 
 interface TripStatsCardProps {
   origin: { address: string };
   destination: { address: string };
-  routeStats: { distance: string; duration: string; durationSeconds: number } | null;
+  routeStats: RouteStats | null;
   selectedPlaylist: SpotifyPlaylistDetail | null;
   playlistDurationMs?: number;
 }

@@ -1,15 +1,15 @@
 import React from 'react';
 import MyPlaylists from './MyPlaylists';
 import CreatePlaylist from './CreatePlaylist';
-import type { SpotifyPlaylistDetail } from '../services/spotify';
+import type { SpotifyPlaylistDetail, RouteStats, TripLocation } from '../types';
 
 interface TripPlaylistManagerProps {
   activeTab: 'my-playlists' | 'create-new';
   setActiveTab: (tab: 'my-playlists' | 'create-new') => void;
   onPlaylistSelect: (playlist: SpotifyPlaylistDetail | null) => void;
-  routeStats: { distance: string; duration: string; durationSeconds: number } | null;
-  origin: { address: string };
-  destination: { address: string };
+  routeStats: RouteStats | null;
+  origin: TripLocation;
+  destination: TripLocation;
 }
 
 const TripPlaylistManager: React.FC<TripPlaylistManagerProps> = ({

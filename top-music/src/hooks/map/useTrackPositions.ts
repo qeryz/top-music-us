@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import type { SpotifyTrack } from '../../services/spotify';
-import { calculateTrackPositions, decodePolyline, interpolatePointAlongRoute, type TrackPosition } from '../../utils/routeUtils';
+import type { SpotifyTrack, TrackPosition } from '../../types';
+import { calculateTrackPositions, decodePolyline, interpolatePointAlongRoute } from '../../utils/routeUtils';
 
 export const useTrackPositions = (
   directions: google.maps.DirectionsResult | null,

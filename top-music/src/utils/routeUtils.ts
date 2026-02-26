@@ -1,11 +1,4 @@
-import type { SpotifyTrack } from '../services/spotify';
-
-export interface TrackPosition {
-    track: SpotifyTrack;
-    cumulativeTimeMs: number;
-    percentageAlongRoute: number;
-    position?: google.maps.LatLng;
-}
+import type { SpotifyTrack, TrackPosition } from '../types';
 
 /**
  * Calculates the cumulative time and percentage along route for each track

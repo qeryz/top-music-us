@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Music } from 'lucide-react';
-import { type SpotifyPlaylist } from '../services/spotify';
+import type { SpotifyPlaylist } from '../types';
 
 interface PlaylistGridProps {
     playlists: SpotifyPlaylist[];
