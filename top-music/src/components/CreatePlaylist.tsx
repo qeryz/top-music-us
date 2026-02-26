@@ -5,10 +5,12 @@ import { formatPlaybackTime } from '../utils/formatters';
 
 interface CreatePlaylistProps {
     routeStats: { distance: string; duration: string; durationSeconds: number } | null;
+    origin: { address: string };
+    destination: { address: string };
     onPlaylistCreated: (playlist: SpotifyPlaylistDetail) => void;
 }
 
-const CreatePlaylist: React.FC<CreatePlaylistProps> = ({ routeStats, onPlaylistCreated }) => {
+const CreatePlaylist: React.FC<CreatePlaylistProps> = ({ routeStats, origin, destination, onPlaylistCreated }) => {
     const [playlistName, setPlaylistName] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
@@ -16,14 +18,13 @@ const CreatePlaylist: React.FC<CreatePlaylistProps> = ({ routeStats, onPlaylistC
     const [totalDurationMs, setTotalDurationMs] = useState(0);
     const [error, setError] = useState<string | null>(null);
 
-    // Set default name when routeStats is available
+    // Set default name when destination is available
     useEffect(() => {
-        if (routeStats && !playlistName) {
-            // Try to get destination name from address
-            const dest = routeStats ? 'Trip' : 'New Trip';
-            setPlaylistName(`Road Trip Playlist`);
+        if (destination && !playlistName) {
+            const cityName = destination.address.split(',')[0];
+            setPlaylistName(`Road Trip to ${cityName}`);
         }
-    }, [routeStats]);
+    }, [destination]);
 
     const handleGenerate = async () => {
         if (!routeStats) return;

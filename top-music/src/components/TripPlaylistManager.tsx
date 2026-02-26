@@ -8,13 +8,17 @@ interface TripPlaylistManagerProps {
   setActiveTab: (tab: 'my-playlists' | 'create-new') => void;
   onPlaylistSelect: (playlist: SpotifyPlaylistDetail | null) => void;
   routeStats: { distance: string; duration: string; durationSeconds: number } | null;
+  origin: { address: string };
+  destination: { address: string };
 }
 
 const TripPlaylistManager: React.FC<TripPlaylistManagerProps> = ({
   activeTab,
   setActiveTab,
   onPlaylistSelect,
-  routeStats
+  routeStats,
+  origin,
+  destination
 }) => {
   return (
     <div className="flex-1 px-8 py-12 max-w-7xl mx-auto w-full flex flex-col gap-8">
@@ -42,6 +46,8 @@ const TripPlaylistManager: React.FC<TripPlaylistManagerProps> = ({
            ) : (
               <CreatePlaylist 
                 routeStats={routeStats} 
+                origin={origin}
+                destination={destination}
                 onPlaylistCreated={onPlaylistSelect} 
               />
            )}
