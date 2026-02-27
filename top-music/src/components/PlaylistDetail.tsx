@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import type { SpotifyTrack, SpotifyPlaylistDetail, SpotifyPlayer, SpotifyPlaylistTrack } from '../types';
+import type { SpotifyTrack, SpotifyPlaylistDetail, SpotifyPlayer, SpotifyPlaylistItem } from '../types';
 import PlaylistLoading from './PlaylistLoading';
 import PlaylistError from './PlaylistError';
 import PlaylistHeader from './PlaylistHeader';
@@ -41,11 +41,12 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
 
     // Sync local playlist state when data fetch is complete
     useEffect(() => {
-        if (initialPlaylist) {
+        if (initialPlaylist && initialPlaylist.items) {
             // Assign unique local IDs to each track item to handle duplicates
-            const tracksWithIds = {
-                ...initialPlaylist.tracks,
-                items: initialPlaylist.tracks.items.map((item: SpotifyPlaylistTrack) => ({
+            const itemsWithIds = {
+                href: initialPlaylist.items.href,
+                total: initialPlaylist.items.total,
+                items: initialPlaylist.items.items.map((item: SpotifyPlaylistItem) => ({
                     ...item,
                     localId: crypto.randomUUID()
                 }))
@@ -53,7 +54,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
             
             setLocalPlaylist({
                 ...initialPlaylist,
-                tracks: tracksWithIds
+                items: itemsWithIds
             });
         }
     }, [initialPlaylist]);
@@ -70,32 +71,32 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
     };
 
     const handleReorder = (newItems: any[]) => {
-        if (!localPlaylist) return;
+        if (!localPlaylist || !localPlaylist.items) return;
         setLocalPlaylist({ 
             ...localPlaylist, 
-            tracks: { 
-                ...localPlaylist.tracks, 
+            items: { 
+                ...localPlaylist.items, 
                 items: newItems 
             } 
         });
     };
 
     const handleAddTrack = (track: SpotifyTrack) => {
-        if (!localPlaylist) return;
+        if (!localPlaylist || !localPlaylist.items) return;
         
         const newTrackItem = {
             added_at: new Date().toISOString(),
             is_local: false,
-            track: track,
+            item: track,
             localId: crypto.randomUUID() // Generate unique ID for new track
         };
 
         setLocalPlaylist({
             ...localPlaylist,
-            tracks: {
-                ...localPlaylist.tracks,
-                items: [newTrackItem, ...localPlaylist.tracks.items],
-                total: localPlaylist.tracks.total + 1
+            items: {
+                ...localPlaylist.items,
+                items: [newTrackItem, ...localPlaylist.items.items],
+                total: localPlaylist.items.total + 1
             }
         });
     };
@@ -105,7 +106,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
         
         setIsSaving(true);
         try {
-            const uris = localPlaylist.tracks.items.map(item => item.track.uri);
+            const uris = localPlaylist.items?.items.map(listItem => listItem.item.uri) || [];
             const currentSnapshotId = localPlaylist.snapshot_id || initialPlaylist.snapshot_id;
             const response = await savePlaylist(initialPlaylist.id, uris, currentSnapshotId);
             
@@ -127,17 +128,18 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
     };
 
     const handleCancelEdit = () => {
-        if (initialPlaylist) {
-            const tracksWithIds = {
-                ...initialPlaylist.tracks,
-                items: initialPlaylist.tracks.items.map((item: SpotifyPlaylistTrack) => ({
+        if (initialPlaylist && initialPlaylist.items) {
+            const itemsWithIds = {
+                href: initialPlaylist.items.href,
+                total: initialPlaylist.items.total,
+                items: initialPlaylist.items.items.map((item: SpotifyPlaylistItem) => ({
                     ...item,
                     localId: crypto.randomUUID()
                 }))
             };
             setLocalPlaylist({
                 ...initialPlaylist,
-                tracks: tracksWithIds
+                items: itemsWithIds
             });
         }
         setIsEditing(false);

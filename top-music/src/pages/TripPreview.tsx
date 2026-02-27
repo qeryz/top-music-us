@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useJsApiLoader } from '@react-google-maps/api';
 import RouteMap from '../components/RouteMap';
-import type { SpotifyPlaylistDetail, RouteStats } from '../types';
+import type { SpotifyPlaylistDetail, SpotifyPlaylistItem, RouteStats } from '../types';
 import { calculatePlaylistDuration } from '../utils/routeUtils';
 import TripStatsCard from '../components/TripStatsCard';
 import TripPlaylistManager from '../components/TripPlaylistManager';
@@ -23,7 +23,7 @@ const TripPreview: React.FC = () => {
 
   // Memoize tracks array to prevent unnecessary re-renders
   const tracks = useMemo(() => {
-    return selectedPlaylist?.tracks.items.map(item => item.track).filter(Boolean) || undefined;
+    return selectedPlaylist?.items?.items.map((item: SpotifyPlaylistItem) => item.item).filter(Boolean) || undefined;
   }, [selectedPlaylist]);
 
   // Calculate playlist duration

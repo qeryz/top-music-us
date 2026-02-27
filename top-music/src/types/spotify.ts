@@ -9,7 +9,7 @@ export interface SpotifyPlaylist {
     name: string;
     images: SpotifyImage[];
     borderWidth?: number;
-    tracks: {
+    items?: {
         href: string;
         total: number;
     };
@@ -71,9 +71,9 @@ export interface SpotifyTrack {
     uri: string;
 }
 
-export interface SpotifyPlaylistTrack {
+export interface SpotifyPlaylistItem {
     added_at: string;
-    track: SpotifyTrack;
+    item: SpotifyTrack;
     localId?: string; // Frontend-only unique ID for Drag & Drop
 }
 
@@ -91,10 +91,10 @@ export interface SpotifyPlaylistDetail extends SpotifyPlaylist {
         id: string;
         display_name: string;
     };
-    tracks: {
+    items?: {
         href: string;
         total: number;
-        items: SpotifyPlaylistTrack[];
+        items: SpotifyPlaylistItem[];
     };
 }
 

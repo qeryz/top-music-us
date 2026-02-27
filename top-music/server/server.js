@@ -321,7 +321,7 @@ app.put('/api/save-playlist', async (req, res) => {
         }
 
         // Spotify's Replace Playlist Items endpoint
-        const response = await axios.put(`https://api.spotify.com/v1/playlists/${playlist_id}/tracks`, 
+        const response = await axios.put(`https://api.spotify.com/v1/playlists/${playlist_id}/items`, 
             requestBody, 
             { headers: { 'Authorization': 'Bearer ' + access_token } }
         );
@@ -346,7 +346,7 @@ app.post('/api/generate-playlist', async (req, res) => {
         let fetchedTracks = [];
 
         if (existing_playlist_id) {
-            const response = await axios.get(`https://api.spotify.com/v1/playlists/${existing_playlist_id}/tracks`, {
+            const response = await axios.get(`https://api.spotify.com/v1/playlists/${existing_playlist_id}/items`, {
                 headers: { 'Authorization': `Bearer ${access_token}` },
                 params: { limit: 100 }
             });
@@ -413,14 +413,14 @@ app.post('/api/create-playlist', async (req, res) => {
             userId = me.data.id;
         }
 
-        const createResp = await axios.post(`https://api.spotify.com/v1/users/${userId}/playlists`, 
+        const createResp = await axios.post(`https://api.spotify.com/v1/me/playlists`, 
             { name: name || 'Road Trip Playlist', public: false },
             { headers: { 'Authorization': `Bearer ${access_token}` } }
         );
         
         const playlistId = createResp.data.id;
 
-        await axios.post(`https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+        await axios.post(`https://api.spotify.com/v1/playlists/${playlistId}/items`,
             { uris: uris },
             { headers: { 'Authorization': `Bearer ${access_token}` } }
         );

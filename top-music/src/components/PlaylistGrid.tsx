@@ -53,7 +53,7 @@ const PlaylistGrid: React.FC<PlaylistGridProps> = ({ playlists, onSelect }) => {
                                 {playlist.name}
                             </h3>
                             <p className="text-sm text-white/60">
-                                {playlist.tracks.total} songs
+                                {playlist.items?.total ?? 0} songs
                             </p>
                         </div>
                     </div>

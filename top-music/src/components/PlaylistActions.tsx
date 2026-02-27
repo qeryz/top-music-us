@@ -38,8 +38,8 @@ const PlaylistActions: React.FC<PlaylistActionsProps> = ({
             } else {
                 player?.pause();
             }
-            if (!playingTrackId && localPlaylist.tracks.items[0]?.track) {
-                handlePlay(localPlaylist.tracks.items[0].track);
+            if (!playingTrackId && localPlaylist.items?.items[0]?.item) {
+                handlePlay(localPlaylist.items.items[0].item);
             }
         }}
         className="w-14 h-14 rounded-full bg-[#1DB954] hover:scale-105 active:scale-95 flex items-center justify-center text-black transition-all shadow-lg cursor-pointer"

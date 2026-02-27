@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ArrowLeft, Music, Loader } from 'lucide-react';
-import type { SpotifyPlaylistDetail } from '../types';
+import type { SpotifyPlaylistDetail, SpotifyPlaylistItem } from '../types';
 import { formatPlaybackTime } from '../utils/formatters';
 
 interface PlaylistHeaderProps {
@@ -13,8 +13,8 @@ const PlaylistHeader: React.FC<PlaylistHeaderProps> = ({ playlist, onBack, devic
     const imageUrl = playlist.images?.[0]?.url;
 
     const totalDurationMs = useMemo(() => {
-        return playlist.tracks.items.reduce((acc, item) => acc + (item.track?.duration_ms || 0), 0);
-    }, [playlist.tracks.items]);
+        return playlist.items?.items.reduce((acc, item: SpotifyPlaylistItem) => acc + (item.item?.duration_ms || 0), 0) || 0;
+    }, [playlist.items?.items]);
 
     return (
         <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 p-4 md:p-6 bg-gradient-to-b from-white/10 to-transparent rounded-t-xl">
@@ -69,7 +69,7 @@ const PlaylistHeader: React.FC<PlaylistHeaderProps> = ({ playlist, onBack, devic
                     <span>{playlist.owner.display_name}</span>
                     <span>•</span>
                     <span>
-                        {playlist.tracks.total} {playlist.tracks.total === 1 ? 'song' : 'songs'}
+                        {playlist.items?.total ?? 0} {playlist.items?.total === 1 ? 'song' : 'songs'}
                         {totalDurationMs > 0 && `, ${formatPlaybackTime(totalDurationMs)}`}
                     </span>
                     {!deviceId && <Loader className="w-3 h-3 animate-spin text-orange-400" />}

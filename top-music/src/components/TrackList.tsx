@@ -1,7 +1,7 @@
 import React from 'react';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import type { SpotifyPlaylistDetail, SpotifyTrack } from '../types';
+import type { SpotifyPlaylistDetail, SpotifyTrack, SpotifyPlaylistItem } from '../types';
 import SortableTrackItem from './SortableTrackItem';
 
 interface TrackListProps {
@@ -36,15 +36,17 @@ const TrackList: React.FC<TrackListProps> = ({
         const { active, over } = event;
         
         if (active.id !== over?.id) {
-            const oldIndex = playlist.tracks.items.findIndex((item) => item.localId === active.id);
-            const newIndex = playlist.tracks.items.findIndex((item) => item.localId === over?.id);
+            const oldIndex = playlist.items?.items.findIndex((item: SpotifyPlaylistItem) => item.localId === active.id) ?? -1;
+            const newIndex = playlist.items?.items.findIndex((item: SpotifyPlaylistItem) => item.localId === over?.id) ?? -1;
             
-            // Create new array with reordered items
-            const newItems = [...playlist.tracks.items];
-            const [movedItem] = newItems.splice(oldIndex, 1);
-            newItems.splice(newIndex, 0, movedItem);
-            
-            onReorder(newItems);
+            if (oldIndex !== -1 && newIndex !== -1) {
+                // Create new array with reordered items
+                const newItems = [...(playlist.items?.items || [])];
+                const [movedItem] = newItems.splice(oldIndex, 1);
+                newItems.splice(newIndex, 0, movedItem);
+                
+                onReorder(newItems);
+            }
         }
     };
 
@@ -56,20 +58,20 @@ const TrackList: React.FC<TrackListProps> = ({
                 onDragEnd={handleDragEnd}
             >
                 <SortableContext 
-                    items={playlist.tracks.items.map(item => item.localId || item.track.id)} 
+                    items={playlist.items?.items.map((item: SpotifyPlaylistItem) => item.localId || item.item.id) || []} 
                     strategy={verticalListSortingStrategy}
                 >
                     <div className="flex flex-col">
-                        {playlist.tracks.items.map((item, index) => {
-                            if (!item.track) return null;
-                            const isCurrentPlaying = playingTrackId === item.track.id;
-                            const uniqueId = item.localId || item.track.id;
+                        {playlist.items?.items.map((item: SpotifyPlaylistItem, index) => {
+                            if (!item.item) return null;
+                            const isCurrentPlaying = playingTrackId === item.item.id;
+                            const uniqueId = item.localId || item.item.id;
                             
                             return (
                                 <SortableTrackItem
                                     key={uniqueId}
                                     id={uniqueId}
-                                    track={item.track}
+                                    track={item.item}
                                     index={index}
                                     isCurrentPlaying={isCurrentPlaying}
                                     isPaused={isPaused}
