@@ -22,9 +22,12 @@ const containerStyle = {
   height: '100%',
 };
 
-const mapOptions = {
+const mapOptions: google.maps.MapOptions = {
   disableDefaultUI: true,
   zoomControl: true,
+  zoomControlOptions: {
+    position: 8
+  },
   streetViewControl: false,
   mapTypeControl: false,
   fullscreenControl: false,
