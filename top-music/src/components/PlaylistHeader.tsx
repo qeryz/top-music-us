@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { ArrowLeft, Music, Loader } from 'lucide-react';
 import type { SpotifyPlaylistDetail, SpotifyPlaylistItem } from '../types';
 import { formatPlaybackTime } from '../utils/formatters';
+import OptimizedImage from './OptimizedImage';
 
 interface PlaylistHeaderProps {
     playlist: SpotifyPlaylistDetail;
@@ -29,17 +30,14 @@ const PlaylistHeader: React.FC<PlaylistHeaderProps> = ({ playlist, onBack, devic
                 </button>
 
                 <div className="relative group shrink-0 shadow-2xl mx-auto md:mx-0">
-                    {imageUrl ? (
-                        <img 
-                            src={imageUrl} 
-                            alt={playlist.name} 
-                            className="w-32 h-32 md:w-48 md:h-48 object-cover rounded-lg shadow-black/50"
-                        />
-                    ) : (
-                        <div className="w-32 h-32 md:w-48 md:h-48 bg-[#282828] flex items-center justify-center rounded-lg">
-                            <Music className="w-12 h-12 md:w-20 md:h-20 text-white/20" />
-                        </div>
-                    )}
+                    <OptimizedImage
+                        src={imageUrl}
+                        alt={playlist.name}
+                        containerClassName="w-32 h-32 md:w-48 md:h-48 rounded-lg shadow-black/50"
+                        fallbackIcon={<Music className="w-12 h-12 md:w-20 md:h-20 text-white/20" />}
+                        loading="eager"
+                        decoding="sync"
+                    />
                 </div>
                 
                 {/* Spacer for mobile centering balance if needed, or just let it be left-aligned/centered */}

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Music, Play, Plus, Save, Loader2, RefreshCw } from 'lucide-react';
+import { Sparkles, Music, Save, Loader2, RefreshCw } from 'lucide-react';
 import { generatePlaylist, createPlaylist, getPlaylist } from '../services/spotify';
 import type { SpotifyTrack, SpotifyPlaylistDetail, RouteStats, TripLocation } from '../types';
 import { formatPlaybackTime } from '../utils/formatters';
+import OptimizedImage from './OptimizedImage';
 
 interface CreatePlaylistProps {
     routeStats: RouteStats | null;
@@ -11,7 +12,7 @@ interface CreatePlaylistProps {
     onPlaylistCreated: (playlist: SpotifyPlaylistDetail) => void;
 }
 
-const CreatePlaylist: React.FC<CreatePlaylistProps> = ({ routeStats, origin, destination, onPlaylistCreated }) => {
+const CreatePlaylist: React.FC<CreatePlaylistProps> = ({ routeStats, destination, onPlaylistCreated }) => {
     const [playlistName, setPlaylistName] = useState('');
     const [isGenerating, setIsGenerating] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
@@ -74,7 +75,7 @@ const CreatePlaylist: React.FC<CreatePlaylistProps> = ({ routeStats, origin, des
     }
 
     return (
-        <div className="flex flex-col gap-8 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex flex-col gap-8 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-500 text-left">
             {/* Header / Intro */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/5 border border-white/10 p-6 md:p-8 rounded-3xl backdrop-blur-sm">
                 <div className="flex-1 space-y-2">
@@ -112,13 +113,13 @@ const CreatePlaylist: React.FC<CreatePlaylistProps> = ({ routeStats, origin, des
             {generatedTracks.length > 0 && (
                 <div className="space-y-6 animate-in fade-in zoom-in-95 duration-500">
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/5 pb-6">
-                        <div className="flex-1 w-full">
-                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2 block">Playlist Name</label>
+                        <div className="flex-1 w-full text-left">
+                            <label className="text-[10px] font-bold text-white/40 uppercase tracking-[0.2em] mb-2 block text-left">Playlist Name</label>
                             <input 
                                 type="text"
                                 value={playlistName}
                                 onChange={(e) => setPlaylistName(e.target.value)}
-                                className="w-full bg-transparent text-2xl md:text-3xl font-extrabold text-white focus:outline-none placeholder:text-white/10"
+                                className="w-full bg-transparent text-2xl md:text-3xl font-extrabold text-white focus:outline-none placeholder:text-white/10 text-left"
                                 placeholder="Give your playlist a name..."
                             />
                         </div>
@@ -131,13 +132,13 @@ const CreatePlaylist: React.FC<CreatePlaylistProps> = ({ routeStats, origin, des
                     <div className="grid gap-2">
                         {generatedTracks.slice(0, 5).map((track, i) => (
                             <div key={track.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-colors group">
-                                <span className="w-4 text-white/20 text-xs font-medium">{i + 1}</span>
-                                <img 
+                                <span className="w-4 text-white/20 text-xs font-medium text-center">{i + 1}</span>
+                                <OptimizedImage 
                                     src={track.album.images[track.album.images.length - 1]?.url} 
                                     alt="" 
-                                    className="w-10 h-10 rounded shadow-md object-cover" 
+                                    containerClassName="w-10 h-10 rounded shadow-md shrink-0" 
                                 />
-                                <div className="flex-1 min-w-0">
+                                <div className="flex-1 min-w-0 text-left">
                                     <div className="text-white font-bold text-sm truncate">{track.name}</div>
                                     <div className="text-white/40 text-xs truncate">{track.artists.map(a => a.name).join(', ')}</div>
                                 </div>

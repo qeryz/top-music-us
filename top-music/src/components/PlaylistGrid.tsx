@@ -1,6 +1,7 @@
 import React from 'react';
 import { Music } from 'lucide-react';
 import type { SpotifyPlaylist } from '../types';
+import OptimizedImage from './OptimizedImage';
 
 interface PlaylistGridProps {
     playlists: SpotifyPlaylist[];
@@ -18,7 +19,7 @@ const PlaylistGrid: React.FC<PlaylistGridProps> = ({ playlists, onSelect }) => {
     }
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-1">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-1 text-left">
             {playlists.map((playlist) => {
                 const imageUrl = playlist.images?.[0]?.url;
                 return (
@@ -29,22 +30,17 @@ const PlaylistGrid: React.FC<PlaylistGridProps> = ({ playlists, onSelect }) => {
                     >
                         {/* Playlist Image */}
                         <div className="aspect-square w-full rounded-lg overflow-hidden bg-[#282828] shadow-lg relative">
-                                {imageUrl ? (
-                                <img 
-                                    src={imageUrl} 
-                                    alt={playlist.name} 
-                                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
-                                />
-                                ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                    <Music className="w-12 h-12 text-white/20" />
-                                </div>
-                                )}
-                                
-                                {/* Hover Play Button Overlay (Visual only for now) */}
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <OptimizedImage
+                                src={imageUrl}
+                                alt={playlist.name}
+                                containerClassName="w-full h-full"
+                                className="transform group-hover:scale-105 transition-transform duration-500"
+                            />
+                            
+                            {/* Hover Play Button Overlay (Visual only for now) */}
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
                                 {/* Can add play icon here later */}
-                                </div>
+                            </div>
                         </div>
 
                         {/* Info */}

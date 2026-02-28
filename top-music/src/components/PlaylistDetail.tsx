@@ -41,23 +41,28 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
 
     // Sync local playlist state when data fetch is complete
     useEffect(() => {
-        if (initialPlaylist && initialPlaylist.items) {
-            // Assign unique local IDs to each track item to handle duplicates
-            const itemsWithIds = {
-                href: initialPlaylist.items.href,
-                total: initialPlaylist.items.total,
-                items: initialPlaylist.items.items.map((item: SpotifyPlaylistItem) => ({
-                    ...item,
-                    localId: crypto.randomUUID()
-                }))
-            };
-            
-            setLocalPlaylist({
-                ...initialPlaylist,
-                items: itemsWithIds
-            });
-        }
-    }, [initialPlaylist]);
+        if (!initialPlaylist || !initialPlaylist.items) return;
+        
+        // Don't reset if we're in the middle of editing (to preserve user's local changes)
+        // OR if we already have a local playlist that matches the snapshot
+        if (isEditing) return;
+        if (localPlaylist?.snapshot_id === initialPlaylist.snapshot_id) return;
+        
+        // Map items to stable local IDs. 
+        // We use the index-stabilized approach for initial loading.
+        const itemsWithIds = {
+            ...initialPlaylist.items,
+            items: initialPlaylist.items.items.map((item: SpotifyPlaylistItem) => ({
+                ...item,
+                localId: `initial-${item.item.id}-${item.added_at}-${crypto.randomUUID().slice(0,8)}`
+            }))
+        };
+        
+        setLocalPlaylist({ 
+            ...initialPlaylist, 
+            items: itemsWithIds 
+        });
+    }, [initialPlaylist, isEditing]); // Only sync when data arrives or the ID/snapshot changes
 
     // Notify parent when playlist is loaded (using local state as source of truth)
     useEffect(() => {
@@ -154,7 +159,7 @@ const PlaylistDetail: React.FC<PlaylistDetailProps> = ({
 
     return (
         <div className="flex flex-col h-full animate-in fade-in duration-300">
-            <div className="sticky top-0 z-30 bg-[#05110a] shadow-md border-b border-white/5">
+            <div className="sticky top-0 z-50 bg-[#05110a] shadow-md border-b border-white/5">
                 <PlaylistHeader 
                     playlist={localPlaylist} 
                     onBack={onBack} 

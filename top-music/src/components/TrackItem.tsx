@@ -2,6 +2,7 @@ import React from 'react';
 import { Play, Pause } from 'lucide-react';
 import type { SpotifyTrack } from '../types';
 import { formatDuration } from '../utils/formatters';
+import OptimizedImage from './OptimizedImage';
 
 interface TrackItemProps {
     track: SpotifyTrack;
@@ -34,11 +35,15 @@ const TrackItem: React.FC<TrackItemProps> = ({
                 )}
             </div>
 
-            <div className="flex items-center gap-3 overflow-hidden">
-                {track.album.images?.[0] && (
-                    <img src={track.album.images[0].url} alt="" className="w-10 h-10 rounded object-cover" />
-                )}
-                <div className="flex flex-col truncate">
+            <div className="flex items-center gap-4 min-w-0">
+            <OptimizedImage 
+                src={track.album.images[track.album.images.length - 1]?.url} 
+                alt={track.album.name} 
+                containerClassName="w-10 h-10 rounded shadow-md shrink-0 border border-white/5" 
+                loading="eager"
+                decoding="sync"
+            />
+            <div className="flex flex-col min-w-0">
                     <span className={`font-medium truncate ${isCurrentPlaying ? 'text-[#1DB954]' : 'text-white'}`}>
                         {track.name}
                     </span>

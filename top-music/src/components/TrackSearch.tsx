@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { getAccessToken } from '../services/spotify';
 import type { SpotifyTrack } from '../types';
+import OptimizedImage from './OptimizedImage';
 
 interface TrackSearchProps {
     onAddTrack: (track: SpotifyTrack) => void;
@@ -66,10 +67,10 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ onAddTrack }) => {
                             key={track.id}
                             className="flex items-center gap-3 p-3 hover:bg-white/5 transition-colors group"
                         >
-                            <img 
+                            <OptimizedImage 
                                 src={track.album.images[2]?.url || track.album.images[0]?.url} 
                                 alt={track.album.name}
-                                className="w-10 h-10 rounded shadow-md" 
+                                containerClassName="w-10 h-10 rounded shadow-md shrink-0" 
                             />
                             <div className="flex-1 min-w-0">
                                 <div className="font-medium truncate text-sm">{track.name}</div>

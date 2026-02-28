@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { OverlayView, InfoWindow, useGoogleMap } from '@react-google-maps/api';
 import type { TrackPosition } from '../types';
 import { formatPlaybackTime } from '../utils/formatters';
+import OptimizedImage from './OptimizedImage';
 
 interface TrackMarkersProps {
   trackPositions: TrackPosition[];
@@ -112,10 +113,10 @@ const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => 
                 )}
 
                 {/* Main Image Card */}
-                <img 
-                    src={albumImage || 'https://via.placeholder.com/40'} 
+                <OptimizedImage
+                    src={albumImage}
                     alt={trackPos.track.name}
-                    className="marker-card"
+                    containerClassName="marker-card"
                 />
 
                 {/* Badge */}
@@ -138,13 +139,11 @@ const TrackMarkers: React.FC<TrackMarkersProps> = ({ trackPositions, zoom }) => 
           {/* Content remains same */}
           <div className="p-2 max-w-xs">
             <div className="flex items-start gap-3">
-              {selectedTrack.track.album.images[0] && (
-                <img 
-                  src={selectedTrack.track.album.images[0].url} 
-                  alt={selectedTrack.track.album.name}
-                  className="w-16 h-16 rounded object-cover"
-                />
-              )}
+              <OptimizedImage 
+                src={selectedTrack.track.album.images[0]?.url} 
+                alt={selectedTrack.track.album.name}
+                containerClassName="w-16 h-16 rounded shadow-md shrink-0" 
+              />
               <div className="flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-gray-900 truncate">
                   {selectedTrack.track.name}

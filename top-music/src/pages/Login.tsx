@@ -1,5 +1,7 @@
 
 
+import OptimizedImage from '../components/OptimizedImage';
+
 const Login = () => {
   const handleLogin = () => {
     // Redirect to the backend login endpoint
@@ -9,19 +11,19 @@ const Login = () => {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background-dark text-white font-display overflow-hidden">
       
-
-
       {/* Main Content */}
       <main className="flex-grow flex items-center justify-center px-8 pb-20">
         <div className="w-full max-w-[880px] rounded-3xl overflow-hidden shadow-2xl">
              {/* Background Image Container */}
-            <div 
-                className="relative bg-cover bg-center"
-                style={{
-                    backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuCAvaVzNm8Iy0p_zAJWAolwAIUzRBomNzO2PvfrnwKhyAqjRyYVDNnFNd84GpUe0BXUpJ-xtCdxF9-1l9pKO47oFFeFM5lO6gQQ8WVNVz_yygGN7zLPhEKCWm7EbcK8SdAIOTFAtMZPFlGoTtpof4jXPQVdEuJAyM3SD-e2RAUS0knID1fp4fTmRvQLxwgDa_l_Y-MJxEGfaEmDJtixA3kZVfzerWiMOchwaWHSLu1Yuu61pMXg4pkIZFArDt3fY9L5pPP_qTR15t_A")`,
-                    minHeight: '420px'
-                }}
-            >
+            <div className="relative min-h-[420px] bg-[#0A120E]">
+                {/* Background Image Layer */}
+                <div className="absolute inset-0">
+                    <OptimizedImage
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAvaVzNm8Iy0p_zAJWAolwAIUzRBomNzO2PvfrnwKhyAqjRyYVDNnFNd84GpUe0BXUpJ-xtCdxF9-1l9pKO47oFFeFM5lO6gQQ8WVNVz_yygGN7zLPhEKCWm7EbcK8SdAIOTFAtMZPFlGoTtpof4jXPQVdEuJAyM3SD-e2RAUS0knID1fp4fTmRvQLxwgDa_l_Y-MJxEGfaEmDJtixA3kZVfzerWiMOchwaWHSLu1Yuu61pMXg4pkIZFArDt3fY9L5pPP_qTR15t_A"
+                        alt="Road trip background"
+                        containerClassName="w-full h-full"
+                    />
+                </div>
                 {/* Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
 
