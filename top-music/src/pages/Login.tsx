@@ -55,9 +55,9 @@ const Login = () => {
       {/* Footer */}
       <footer className="select-none w-full pb-8 text-center text-sm text-white/40">
         <div className="flex justify-center gap-12 mb-3">
-            <a href="#" className="hover:text-white/60 transition-colors">About</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-white/60 transition-colors">Terms of Service</a>
+            <a href="#" className="hover:text-white/60 transition-colors cursor-pointer">About</a>
+            <a href="#" className="hover:text-white/60 transition-colors cursor-pointer">Privacy Policy</a>
+            <a href="#" className="hover:text-white/60 transition-colors cursor-pointer">Terms of Service</a>
         </div>
         <p className="select-none text-white/30">© {new Date().getFullYear()} RoadTrip Jams. All Rights Reserved.</p>
       </footer>

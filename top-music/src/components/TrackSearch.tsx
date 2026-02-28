@@ -83,7 +83,7 @@ const TrackSearch: React.FC<TrackSearchProps> = ({ onAddTrack }) => {
                                     setQuery('');
                                     setResults([]);
                                 }}
-                                className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors"
+                                className="p-2 rounded-full hover:bg-white/10 text-white/50 hover:text-white transition-colors cursor-pointer"
                             >
                                 <Plus className="w-5 h-5" />
                             </button>
