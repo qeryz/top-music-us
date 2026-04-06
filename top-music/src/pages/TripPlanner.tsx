@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Search, Clock, Calendar } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import mapLines from '../assets/map-lines.png';
 import { useJsApiLoader } from '@react-google-maps/api';
 import PlacesAutocomplete from '../components/PlacesAutocomplete';
+import CustomDatePicker from '../components/CustomDatePicker';
+import CustomTimePicker from '../components/CustomTimePicker';
 import type { TripLocation } from '../types';
 
 const LIBRARIES: ("places" | "geometry")[] = ["places", "geometry"];
@@ -36,7 +38,7 @@ const TripPlanner: React.FC = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col font-display overflow-hidden bg-[#05110a]">
+    <div className="relative flex min-h-screen w-full flex-col font-display overflow-x-hidden overflow-y-auto bg-[#05110a] min-h-[600px]">
       
       {/* Background Map Image */}
       <div 
@@ -89,34 +91,20 @@ const TripPlanner: React.FC = () => {
                     />
 
                     <div className="flex gap-4 w-full">
-                        <div className="flex flex-col gap-2 w-1/2">
+                        <div className="flex flex-col gap-2 w-1/2 group">
                             <label className="text-white/70 text-sm font-medium ml-2">Start Date (Optional)</label>
-                            <div className="relative">
-                                <input 
-                                    type="date" 
-                                    className="w-full bg-[#1A241E] text-white rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-primary/50 transition-all border border-white/5 pl-12"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                />
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">
-                                    <Calendar className="w-5 h-5" />
-                                </div>
-                            </div>
+                            <CustomDatePicker 
+                                value={startDate}
+                                onChange={setStartDate}
+                            />
                         </div>
 
-                        <div className="flex flex-col gap-2 w-1/2">
+                        <div className="flex flex-col gap-2 w-1/2 group">
                             <label className="text-white/70 text-sm font-medium ml-2">Start Time (Optional)</label>
-                            <div className="relative">
-                                <input 
-                                    type="time" 
-                                    className="w-full bg-[#1A241E] text-white rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-primary/50 transition-all border border-white/5 pl-12"
-                                    value={startTime}
-                                    onChange={(e) => setStartTime(e.target.value)}
-                                />
-                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">
-                                    <Clock className="w-5 h-5" />
-                                </div>
-                            </div>
+                            <CustomTimePicker 
+                                value={startTime}
+                                onChange={setStartTime}
+                            />
                         </div>
                     </div>
                   </>
