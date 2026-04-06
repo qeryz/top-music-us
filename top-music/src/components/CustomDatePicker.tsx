@@ -55,7 +55,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({ value, onChange }) 
              </button>
 
              {isOpen && (
-                 <div className="absolute bottom-full left-0 mb-3 w-full sm:w-[320px] bg-[#0A120E]/95 backdrop-blur-3xl border border-white/10 rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 origin-bottom duration-200">
+                 <div className="absolute bottom-full left-0 mb-3 w-[290px] sm:w-[320px] bg-[#0A120E]/95 backdrop-blur-3xl border border-white/10 rounded-3xl p-5 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 origin-bottom duration-200">
                      <div className="flex items-center justify-between mb-6">
                          <h3 className="text-white font-bold tracking-wide flex-1 text-center">
                              {currentMonth.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}

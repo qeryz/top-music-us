@@ -90,8 +90,8 @@ const TripPlanner: React.FC = () => {
                       defaultValue={initialDestination?.address}
                     />
 
-                    <div className="flex gap-4 w-full">
-                        <div className="flex flex-col gap-2 w-1/2 group">
+                    <div className="flex flex-col md:flex-row gap-4 w-full">
+                        <div className="flex flex-col gap-2 w-full md:w-1/2 group">
                             <label className="text-white/70 text-sm font-medium ml-2">Start Date (Optional)</label>
                             <CustomDatePicker 
                                 value={startDate}
@@ -99,7 +99,7 @@ const TripPlanner: React.FC = () => {
                             />
                         </div>
 
-                        <div className="flex flex-col gap-2 w-1/2 group">
+                        <div className="flex flex-col gap-2 w-full md:w-1/2 group">
                             <label className="text-white/70 text-sm font-medium ml-2">Start Time (Optional)</label>
                             <CustomTimePicker 
                                 value={startTime}

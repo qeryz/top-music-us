@@ -56,7 +56,7 @@ const CustomTimePicker: React.FC<CustomTimePickerProps> = ({ value, onChange }) 
              </button>
 
              {isOpen && (
-                 <div className="absolute bottom-full right-0 left-0 sm:left-auto mb-3 w-full sm:w-[240px] max-h-[320px] overflow-y-auto overflow-x-hidden bg-[#0A120E]/95 backdrop-blur-3xl border border-white/10 rounded-3xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 origin-bottom duration-200">
+                 <div className="absolute bottom-full right-0 left-0 sm:left-auto mb-3 w-[260px] max-h-[320px] overflow-y-auto overflow-x-hidden bg-[#0A120E]/95 backdrop-blur-3xl border border-white/10 rounded-3xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-50 animate-in fade-in zoom-in-95 origin-bottom duration-200">
                      <div className="grid grid-cols-2 gap-2">
                         {timeOptions.map((time) => {
                             const isSelected = value === time.value;
