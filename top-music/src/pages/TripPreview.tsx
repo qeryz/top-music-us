@@ -16,6 +16,8 @@ const TripPreview: React.FC = () => {
   // Safe access to state in case user navigates directly
   const origin = state?.origin;
   const destination = state?.destination;
+  const startDate = state?.startDate;
+  const startTime = state?.startTime;
 
   const [routeStats, setRouteStats] = useState<RouteStats | null>(null);
   const [activeTab, setActiveTab] = useState<'my-playlists' | 'create-new'>('my-playlists');
@@ -65,6 +67,8 @@ const TripPreview: React.FC = () => {
                 <RouteMap 
                     origin={origin} 
                     destination={destination}
+                    startDate={startDate}
+                    startTime={startTime}
                     onRouteStatsCalculated={setRouteStats}
                     tracks={tracks as any}
                     playlistDurationMs={playlistDurationMs}

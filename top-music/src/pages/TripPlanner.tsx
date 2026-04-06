@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Clock, Calendar } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import mapLines from '../assets/map-lines.png';
 import { useJsApiLoader } from '@react-google-maps/api';
@@ -15,6 +15,8 @@ const TripPlanner: React.FC = () => {
 
   const [origin, setOrigin] = useState<TripLocation | null>(initialOrigin || null);
   const [destination, setDestination] = useState<TripLocation | null>(initialDestination || null);
+  const [startDate, setStartDate] = useState<string>(location.state?.startDate || '');
+  const [startTime, setStartTime] = useState<string>(location.state?.startTime || '');
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -29,7 +31,7 @@ const TripPlanner: React.FC = () => {
     }
     // Navigate to preview page with state
     navigate('/trip-preview', { 
-        state: { origin, destination } 
+        state: { origin, destination, startDate, startTime } 
     });
   };
 
@@ -85,6 +87,38 @@ const TripPlanner: React.FC = () => {
                       onClear={() => setDestination(null)}
                       defaultValue={initialDestination?.address}
                     />
+
+                    <div className="flex gap-4 w-full">
+                        <div className="flex flex-col gap-2 w-1/2">
+                            <label className="text-white/70 text-sm font-medium ml-2">Start Date (Optional)</label>
+                            <div className="relative">
+                                <input 
+                                    type="date" 
+                                    className="w-full bg-[#1A241E] text-white rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-primary/50 transition-all border border-white/5 pl-12"
+                                    value={startDate}
+                                    onChange={(e) => setStartDate(e.target.value)}
+                                />
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">
+                                    <Calendar className="w-5 h-5" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2 w-1/2">
+                            <label className="text-white/70 text-sm font-medium ml-2">Start Time (Optional)</label>
+                            <div className="relative">
+                                <input 
+                                    type="time" 
+                                    className="w-full bg-[#1A241E] text-white rounded-2xl px-5 py-4 outline-none focus:ring-2 focus:ring-primary/50 transition-all border border-white/5 pl-12"
+                                    value={startTime}
+                                    onChange={(e) => setStartTime(e.target.value)}
+                                />
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50">
+                                    <Clock className="w-5 h-5" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                   </>
                 ) : (
                   <div className="text-white/50 text-center py-4">Loading Maps...</div>

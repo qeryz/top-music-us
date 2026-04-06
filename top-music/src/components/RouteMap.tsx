@@ -11,6 +11,8 @@ import { usePlaylistCoverage } from '../hooks/map/usePlaylistCoverage';
 interface RouteMapProps {
   origin: google.maps.LatLngLiteral;
   destination: google.maps.LatLngLiteral;
+  startDate?: string;
+  startTime?: string;
   onRouteStatsCalculated: (stats: RouteStats) => void;
   tracks?: SpotifyTrack[];
   playlistDurationMs?: number; // Total duration of the playlist in milliseconds
@@ -37,13 +39,13 @@ const mapOptions: google.maps.MapOptions = {
   clickableIcons: false
 };
 
-const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, onRouteStatsCalculated, tracks, playlistDurationMs, playlistId }) => {
+const RouteMap: React.FC<RouteMapProps> = ({ origin, destination, startDate, startTime, onRouteStatsCalculated, tracks, playlistDurationMs, playlistId }) => {
   const [mapKey, setMapKey] = useState(0);
   const [zoom, setZoom] = useState(10);
   const [showTracks, setShowTracks] = useState(true);
   const mapRef = React.useRef<google.maps.Map | null>(null);
 
-  const { directions, routeStats } = useRouteDirections(origin, destination);
+  const { directions, routeStats } = useRouteDirections(origin, destination, startDate, startTime);
   const trackPositions = useTrackPositions(directions, tracks);
   const coverageData = usePlaylistCoverage(directions, playlistDurationMs, playlistId, tracks);
 
