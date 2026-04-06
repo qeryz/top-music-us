@@ -84,6 +84,8 @@ const TripPreview: React.FC = () => {
             <TripStatsCard 
               origin={origin}
               destination={destination}
+              startDate={startDate}
+              startTime={startTime}
               routeStats={routeStats}
               selectedPlaylist={selectedPlaylist}
               playlistDurationMs={playlistDurationMs}

@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Music, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
+import { Music, Pencil, ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import { formatPlaybackTime } from '../utils/formatters';
 import type { SpotifyPlaylistDetail, RouteStats } from '../types';
 
 interface TripStatsCardProps {
   origin: { address: string };
   destination: { address: string };
+  startDate?: string;
+  startTime?: string;
   routeStats: RouteStats | null;
   selectedPlaylist: SpotifyPlaylistDetail | null;
   playlistDurationMs?: number;
@@ -15,6 +17,8 @@ interface TripStatsCardProps {
 const TripStatsCard: React.FC<TripStatsCardProps> = ({
   origin,
   destination,
+  startDate,
+  startTime,
   routeStats,
   selectedPlaylist,
   playlistDurationMs
@@ -61,8 +65,25 @@ const TripStatsCard: React.FC<TripStatsCardProps> = ({
             {/* Est Duration */}
             <div className="pt-1"> {/* Spacer */}
                  {routeStats ? (
-                    <div className="text-[#1ed760] font-medium text-xs md:text-sm mb-3 md:last:mb-0">
-                      Est. {routeStats.duration} ({routeStats.distance})
+                    <div className="flex flex-col gap-1 mb-3 md:last:mb-0">
+                      <div className="text-[#1ed760] font-medium text-xs md:text-sm">
+                        Est. {routeStats.duration} ({routeStats.distance})
+                      </div>
+                      {(startDate || startTime) && (
+                        <div className="flex items-center gap-1.5 text-white/50 font-medium text-[10px] md:text-xs mt-1">
+                           <Clock className="w-3 h-3" />
+                           <span>
+                             {startDate && new Date(startDate + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                             {startDate && startTime ? ' • ' : ''}
+                             {startTime && (() => {
+                               const [h, m] = startTime.split(':').map(Number);
+                               const ampm = h >= 12 ? 'PM' : 'AM';
+                               const hr12 = h % 12 || 12;
+                               return `${hr12}:${m.toString().padStart(2, '0')} ${ampm}`;
+                             })()}
+                           </span>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-white/40 text-xs md:text-sm mb-3 md:last:mb-0 animate-pulse">Calculating...</div>
