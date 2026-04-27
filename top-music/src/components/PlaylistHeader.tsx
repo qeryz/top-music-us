@@ -18,7 +18,7 @@ const PlaylistHeader: React.FC<PlaylistHeaderProps> = ({ playlist, onBack, devic
     }, [playlist.items?.items]);
 
     return (
-        <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 p-4 md:p-6 bg-gradient-to-b from-white/10 to-transparent rounded-t-xl">
+        <div className="flex flex-col md:flex-row md:items-end gap-4 md:gap-6 px-0 md:px-6 py-4 md:py-6 bg-gradient-to-b from-white/10 to-transparent rounded-t-xl">
             {/* Mobile: Top Row with Back Button and Image
                 Desktop: Image is just the first child */}
             <div className="flex items-center md:block gap-4 w-full md:w-auto">

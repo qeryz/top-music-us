@@ -21,7 +21,7 @@ const TripPlaylistManager: React.FC<TripPlaylistManagerProps> = ({
   destination
 }) => {
   return (
-    <div className="flex-1 px-8 py-12 max-w-7xl mx-auto w-full flex flex-col gap-8">
+    <div className="flex-1 px-4 md:px-8 py-6 md:py-12 max-w-7xl mx-auto w-full flex flex-col gap-8">
         
         {/* Tabs */}
         <div className="flex items-center gap-8 border-b border-white/10 pb-4">

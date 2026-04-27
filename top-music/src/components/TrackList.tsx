@@ -51,7 +51,7 @@ const TrackList: React.FC<TrackListProps> = ({
     };
 
     return (
-        <div className="px-6 pb-20">
+        <div className="px-0 md:px-6 pb-20">
             <DndContext 
                 sensors={sensors} 
                 collisionDetection={closestCenter} 
